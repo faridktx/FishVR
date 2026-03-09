@@ -20,6 +20,7 @@ FishVR is a Unity VR prototype built using the **XR Interaction Toolkit** where 
 
 ## Project Structure
 
+```
 Assets/
 ├── Animated Hands/
 ├── Prefabs/
@@ -34,22 +35,23 @@ Assets/
 
 Packages/
 ProjectSettings/
+```
 
 ## Assets Used
 
 ### Harpoon Gun
 
-Title: Fishing Net
-Author: cozee4sure
-Source: https://sketchfab.com/3d-models/fishing-net-cbb4bfc4e5654500a70dfe72ffc0ce0a
-License: Creative Commons Attribution 4.0 (CC BY 4.0)
+- **Title:** Fishing Net
+- **Author:** cozee4sure
+- **Source:** https://sketchfab.com/3d-models/fishing-net-cbb4bfc4e5654500a70dfe72ffc0ce0a
+- **License:** Creative Commons Attribution 4.0 (CC BY 4.0)
 
 ### Fishing Net
 
-Title: harpoondraft
-Author: Jlecnikwow  
-Source: https://sketchfab.com/3d-models/harpoondraft-3eb3b5a8c6ea410bbafea2b157010756
-License: Creative Commons Attribution 4.0 (CC BY 4.0)
+- **Title:** harpoondraft
+- **Author:** Jlecnikwow
+- **Source:** https://sketchfab.com/3d-models/harpoondraft-3eb3b5a8c6ea410bbafea2b157010756
+- **License:** Creative Commons Attribution 4.0 (CC BY 4.0)
 
 ## Technologies Used
 
