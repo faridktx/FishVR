@@ -3,7 +3,22 @@ guid: 6f5ea8f850987814d8a9e1a0431caf77
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Pier_Rust_Mat
+    second: {fileID: 2100000, guid: 2e2f9504083b3304c901a63252b1e32d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Pier_Wet_Wood_Mat
+    second: {fileID: 2100000, guid: 284ca278ee50104458533ab79e5eade5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Pier_Wood_Mat
+    second: {fileID: 2100000, guid: 126cef53b7a5dbc418ec2f39a353b4bc, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
