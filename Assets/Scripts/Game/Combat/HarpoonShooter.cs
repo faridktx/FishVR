@@ -35,7 +35,7 @@ public class HarpoonShooter : MonoBehaviour
 
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            TryShoot();
+            //TryShoot();
         }
     }
 
