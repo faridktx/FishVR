@@ -176,7 +176,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 631.2725, y: 0, z: 475.57703}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8956856219196777798}
@@ -305,6 +305,7 @@ MonoBehaviour:
   startScale: {x: 0.1, y: 0.1, z: 0.1}
   targetScale: {x: 0.4, y: 0.4, z: 0.4}
   autoReturnDelay: 0.15
+  forceLandingAfterSeconds: 12
   magnetCollector: {fileID: 3901412205580915569}
   returnController: {fileID: 5369934518382945829}
 --- !u!114 &3901412205580915569
@@ -324,6 +325,10 @@ MonoBehaviour:
   lootMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  maxAttachedItems: 24
+  pullTowardCenter: 0.35
+  tangentialSpread: 0.2
+  verticalSpread: 0.15
 --- !u!114 &5369934518382945829
 MonoBehaviour:
   m_ObjectHideFlags: 0
