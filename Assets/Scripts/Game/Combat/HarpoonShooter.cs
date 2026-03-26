@@ -66,16 +66,12 @@ public class HarpoonShooter : MonoBehaviour
             return firePoint.forward;
         }
 
-        Vector2 mousePosition = Mouse.current != null
-            ? Mouse.current.position.ReadValue()
-            : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
-
-        Ray ray = aimCamera.ScreenPointToRay(mousePosition);
+        Ray ray = new Ray(aimCamera.transform.position, aimCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, maxAimDistance, aimMask))
         {
             return (hit.point - firePoint.position).normalized;
         }
 
-        return ray.direction.normalized;
+        return aimCamera.transform.forward;
     }
 }

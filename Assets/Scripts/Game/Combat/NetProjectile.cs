@@ -9,6 +9,7 @@ public class NetProjectile : MonoBehaviour
     public Vector3 targetScale = new Vector3(0.4f, 0.4f, 0.4f);
     public float autoReturnDelay = 0.15f;
     public float forceLandingAfterSeconds = 12f;
+    public float armingDelay = 0.2f;
 
     [Header("Composition")]
     public MagnetCollector magnetCollector;
@@ -17,6 +18,7 @@ public class NetProjectile : MonoBehaviour
     private Rigidbody rb;
     private GameManager gameManager;
     private bool hasImpacted;
+    private float armTime;
 
     public MagnetCollector MagnetCollector => magnetCollector;
     public NetReturnController ReturnController => returnController;
@@ -58,6 +60,8 @@ public class NetProjectile : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
         }
 
+        hasImpacted = false;
+        armTime = Time.time + armingDelay;
         CancelInvoke(nameof(ForceLandingFailsafe));
         Invoke(nameof(ForceLandingFailsafe), Mathf.Max(1f, forceLandingAfterSeconds));
     }
@@ -93,7 +97,7 @@ public class NetProjectile : MonoBehaviour
 
     private void TryBeginAutoReturn()
     {
-        if (hasImpacted || gameManager == null)
+        if (hasImpacted || gameManager == null || Time.time < armTime)
         {
             return;
         }
