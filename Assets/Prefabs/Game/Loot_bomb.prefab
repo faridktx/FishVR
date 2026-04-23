@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2914438431823905998}
   - component: {fileID: 1395790199824637922}
   - component: {fileID: 1773778129148257318}
+  - component: {fileID: 3748617626437232741}
   m_Layer: 0
   m_Name: Loot_bomb
   m_TagString: Untagged
@@ -113,7 +114,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2914438431823905998
 Rigidbody:
@@ -158,6 +159,10 @@ MonoBehaviour:
   sellValue: 1
   weight: 1
   isAttachedToNet: 0
+  followStrength: 45
+  followDamping: 8
+  rotateStrength: 10
+  maxFollowSpeed: 8
 --- !u!114 &1773778129148257318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,3 +176,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SortableItem
   dropKey: 324
+--- !u!114 &3748617626437232741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4967698999869258430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c9d74d4917f0484aa48c6a76f3efc6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterFloat
+  waterLevelY: 0
+  buoyancyForce: 18
+  verticalDamping: 1.8
+  maxDownwardBuoyancy: 8
+  gravityCompensation: 1
+  surfaceFollowStrength: 1
+  bobAmplitude: 0.08
+  bobFrequency: 1.8
+  secondaryBobAmplitude: 0.025
+  secondaryBobFrequency: 1.7
+  bobNoiseAmplitude: 0.012
+  bobNoiseFrequency: 0.55
+  bobPhaseOffset: 0
+  uprightStrength: 4
+  angularDamping: 4
+  maxAngularSpeedDegrees: 15
