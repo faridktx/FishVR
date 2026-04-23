@@ -6,6 +6,8 @@ public class StreamCurrentController : MonoBehaviour
     public Vector3 flowDirection = Vector3.right;
     public float flowSpeed = 2.5f;
     public float upwardBias = 0f;
+    public bool useLocalFlowDirection = true;
+    public float acceleration = 6f;
 
     private void Reset()
     {
@@ -27,11 +29,13 @@ public class StreamCurrentController : MonoBehaviour
             return;
         }
 
-        Vector3 dir = flowDirection.sqrMagnitude > 0.0001f ? flowDirection.normalized : Vector3.right;
+        Vector3 baseDir = flowDirection.sqrMagnitude > 0.0001f ? flowDirection.normalized : Vector3.right;
+        Vector3 dir = useLocalFlowDirection ? transform.TransformDirection(baseDir).normalized : baseDir;
         Vector3 targetVelocity = dir * flowSpeed;
         targetVelocity.y += upwardBias;
 
-        rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.deltaTime * 3f);
+        Vector3 velocityDelta = targetVelocity - rb.linearVelocity;
+        rb.AddForce(velocityDelta * acceleration, ForceMode.Acceleration);
     }
 
     private void OnDrawGizmosSelected()
@@ -40,7 +44,8 @@ public class StreamCurrentController : MonoBehaviour
         Bounds b = GetComponent<Collider>() != null ? GetComponent<Collider>().bounds : new Bounds(transform.position, Vector3.one);
         Gizmos.DrawWireCube(b.center, b.size);
 
-        Vector3 dir = flowDirection.sqrMagnitude > 0.0001f ? flowDirection.normalized : Vector3.right;
+        Vector3 baseDir = flowDirection.sqrMagnitude > 0.0001f ? flowDirection.normalized : Vector3.right;
+        Vector3 dir = useLocalFlowDirection ? transform.TransformDirection(baseDir).normalized : baseDir;
         Vector3 start = transform.position;
         Gizmos.DrawLine(start, start + dir * 2f);
     }

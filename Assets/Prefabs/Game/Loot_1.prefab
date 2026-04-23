@@ -11,10 +11,11 @@ GameObject:
   - component: {fileID: 6598321782318283260}
   - component: {fileID: 1911358510751113425}
   - component: {fileID: 1976244605072330551}
-  - component: {fileID: 4910565262945324715}
   - component: {fileID: 1412792918424694047}
   - component: {fileID: 6990664215375139149}
   - component: {fileID: 2293583530630981665}
+  - component: {fileID: 6189675151838677417}
+  - component: {fileID: 3802150726798538046}
   m_Layer: 0
   m_Name: Loot_1
   m_TagString: Untagged
@@ -94,27 +95,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &4910565262945324715
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1576934905270861694}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1412792918424694047
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -158,6 +138,10 @@ MonoBehaviour:
   sellValue: 1
   weight: 1
   isAttachedToNet: 0
+  followStrength: 45
+  followDamping: 8
+  rotateStrength: 10
+  maxFollowSpeed: 8
 --- !u!114 &2293583530630981665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,3 +155,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SortableItem
   dropKey: 324
+--- !u!135 &6189675151838677417
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576934905270861694}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3802150726798538046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576934905270861694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c9d74d4917f0484aa48c6a76f3efc6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterFloat
+  waterLevelY: 0
+  buoyancyForce: 18
+  verticalDamping: 1.8
+  maxDownwardBuoyancy: 8
+  gravityCompensation: 1
+  surfaceFollowStrength: 1
+  bobAmplitude: 0.08
+  bobFrequency: 1.8
+  secondaryBobAmplitude: 0.025
+  secondaryBobFrequency: 1.7
+  bobNoiseAmplitude: 0.012
+  bobNoiseFrequency: 0.55
+  bobPhaseOffset: 0
+  uprightStrength: 4
+  angularDamping: 4
+  maxAngularSpeedDegrees: 15
