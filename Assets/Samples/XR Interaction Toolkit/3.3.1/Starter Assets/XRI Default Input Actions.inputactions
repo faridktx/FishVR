@@ -1299,7 +1299,7 @@
                 {
                     "name": "",
                     "id": "d165c7c5-fdcd-41e7-8f97-c661e92accc0",
-                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "path": "<XRController>{LeftHand}/triggerButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

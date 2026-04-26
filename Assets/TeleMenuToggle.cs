@@ -5,6 +5,15 @@ public class TeleMenuToggle : MonoBehaviour
 {
     public InputActionReference menuButton;
     public GameObject menuCanvas;
+    public Collider[] hitboxColliders;
+
+    private void Start()
+    {
+        if (menuCanvas != null)
+            menuCanvas.SetActive(false);
+        foreach (Collider col in hitboxColliders)
+            if (col != null) col.enabled = false;
+    }
 
     private void OnEnable()
     {
@@ -24,8 +33,10 @@ public class TeleMenuToggle : MonoBehaviour
 
         if (menuButton.action.WasPressedThisFrame())
         {
-            menuCanvas.SetActive(!menuCanvas.activeSelf);
-            Debug.Log("Button Pressed!");
+            bool newState = !menuCanvas.activeSelf;
+            menuCanvas.SetActive(newState);
+            foreach (Collider col in hitboxColliders)
+                if (col != null) col.enabled = newState;
         }
     }
 }
