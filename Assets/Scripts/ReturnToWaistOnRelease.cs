@@ -14,6 +14,13 @@ public class ReturnToWaistOnRelease : MonoBehaviour
     public Vector3 localPositionOffset;
     public Vector3 localEulerOffset;
 
+    [Header("Desktop Override")]
+    public bool enableDesktopOverride = false;
+    public float desktopForwardDistance = 0.9f;
+    public float desktopVerticalOffset = -0.2f;
+    public bool desktopUseCameraPitch = false;
+    public Vector3 desktopAdditionalOffset;
+
     private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
     private Rigidbody body;
     private float returnAtTime = -1f;
@@ -128,6 +135,12 @@ public class ReturnToWaistOnRelease : MonoBehaviour
             body.useGravity = false;
         }
 
+        if (enableDesktopOverride)
+        {
+            ApplyDesktopHolsterPose(target);
+            return;
+        }
+
         Quaternion baseRotation = followYawOnly ? GetTargetYawRotation(target) : target.rotation;
         Vector3 targetWorldPosition = target.position + baseRotation * localPositionOffset;
         Quaternion targetWorldRotation = baseRotation * Quaternion.Euler(localEulerOffset);
@@ -159,6 +172,36 @@ public class ReturnToWaistOnRelease : MonoBehaviour
         if (matchTargetRotation)
         {
             transform.rotation = targetWorldRotation;
+        }
+    }
+
+    private void ApplyDesktopHolsterPose(Transform target)
+    {
+        Vector3 forward = desktopUseCameraPitch ? target.forward : Vector3.ProjectOnPlane(target.forward, Vector3.up);
+        if (forward.sqrMagnitude < 0.0001f)
+        {
+            forward = Vector3.forward;
+        }
+
+        forward.Normalize();
+        Vector3 basePosition =
+            target.position +
+            forward * Mathf.Max(0f, desktopForwardDistance) +
+            Vector3.up * desktopVerticalOffset;
+
+        Quaternion baseRotation = desktopUseCameraPitch ? target.rotation : GetTargetYawRotation(target);
+        Vector3 targetWorldPosition = basePosition + baseRotation * desktopAdditionalOffset;
+
+        if (transform.parent != null)
+        {
+            transform.SetParent(null, true);
+        }
+
+        transform.position = targetWorldPosition;
+
+        if (matchTargetRotation)
+        {
+            transform.rotation = baseRotation * Quaternion.Euler(localEulerOffset);
         }
     }
 

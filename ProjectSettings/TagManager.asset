@@ -11,11 +11,11 @@ TagManager:
   - Grabbable
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - projectile
+  - PlayerWall
+  - loot
+  - bomb
   - 
   - 
   - 

@@ -10,6 +10,7 @@ public class LootItem : MonoBehaviour
     public float weight = 1f;
 
     [HideInInspector] public bool isAttachedToNet;
+    [HideInInspector] public bool isDocked;
 
     [Header("Attached Follow")]
     public float followStrength = 45f;
@@ -65,6 +66,7 @@ public class LootItem : MonoBehaviour
 
     public void AttachTo(Transform target, Vector3 localOffset)
     {
+        isDocked = false;
         isAttachedToNet = true;
         followTarget = target;
         followLocalOffset = localOffset;
@@ -103,6 +105,8 @@ public class LootItem : MonoBehaviour
 
     public void PlaceOnTable(Vector3 worldPosition, float holdDuration, float releaseDownwardSpeed)
     {
+        isDocked = true;
+
         if (tableDropRoutine != null)
         {
             StopCoroutine(tableDropRoutine);
@@ -140,6 +144,11 @@ public class LootItem : MonoBehaviour
         }
 
         tableDropRoutine = null;
+    }
+
+    public void SetDocked(bool value)
+    {
+        isDocked = value;
     }
 
     private void SetIgnoreCollisionWithTarget(bool ignore)

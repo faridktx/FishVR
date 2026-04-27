@@ -76,7 +76,7 @@ public class MagnetCollector : MonoBehaviour
             }
 
             LootItem item = hits[i].GetComponentInParent<LootItem>();
-            if (item == null || item.isAttachedToNet)
+            if (item == null || item.isAttachedToNet || item.isDocked)
             {
                 continue;
             }

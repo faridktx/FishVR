@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5620030702090870669}
   - component: {fileID: 4090917050041253125}
   - component: {fileID: 6551694011358273562}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121,7 +121,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8956856219196777798}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AttachPivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,7 +159,7 @@ GameObject:
   - component: {fileID: 5030080295410982900}
   - component: {fileID: 3901412205580915569}
   - component: {fileID: 5369934518382945829}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Net
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -306,6 +306,7 @@ MonoBehaviour:
   targetScale: {x: 0.4, y: 0.4, z: 0.4}
   autoReturnDelay: 0.15
   forceLandingAfterSeconds: 12
+  armingDelay: 0.2
   magnetCollector: {fileID: 3901412205580915569}
   returnController: {fileID: 5369934518382945829}
 --- !u!114 &3901412205580915569

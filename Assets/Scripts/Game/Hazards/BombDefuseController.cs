@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class BombDefuseController : MonoBehaviour
 {
@@ -7,12 +6,20 @@ public class BombDefuseController : MonoBehaviour
     public RunStats runStats;
 
     public float defuseWindowSeconds = 3f;
-    public KeyCode defuseKey = KeyCode.E;
+
+    [Header("Bomb Pulse")]
+    public bool pulseBombWhileActive = true;
+    public float pulseSpeed = 7f;
+    public float pulseScaleAmount = 0.18f;
 
     public float RemainingTime { get; private set; }
+    public LootItem ActiveBomb => activeBomb;
+    public bool IsTimerActive => timerActive;
 
     private LootItem activeBomb;
     private bool timerActive;
+    private Vector3 activeBombBaseScale;
+    private bool hasBombBaseScale;
 
     private void Update()
     {
@@ -23,6 +30,7 @@ public class BombDefuseController : MonoBehaviour
 
         if (gameManager.CurrentPhase != GamePhase.Defuse)
         {
+            ResetActiveBombVisual();
             timerActive = false;
             RemainingTime = 0f;
             activeBomb = null;
@@ -39,13 +47,21 @@ public class BombDefuseController : MonoBehaviour
             return;
         }
 
-        RemainingTime -= Time.deltaTime;
-
-        if (IsKeyPressed(defuseKey))
+        if (activeBomb == null)
         {
             ResolveSuccess();
             return;
         }
+
+        if (!activeBomb.isDocked)
+        {
+            ResolveThrownAway();
+            return;
+        }
+
+        ApplyPulse();
+
+        RemainingTime -= Time.deltaTime;
 
         if (RemainingTime <= 0f)
         {
@@ -58,11 +74,13 @@ public class BombDefuseController : MonoBehaviour
         for (int i = 0; i < gameManager.LandedItems.Count; i++)
         {
             LootItem item = gameManager.LandedItems[i];
-            if (item != null && item.kind == LootKind.Bomb)
+            if (item != null && item.kind == LootKind.Bomb && item.isDocked)
             {
                 activeBomb = item;
                 timerActive = true;
                 RemainingTime = defuseWindowSeconds;
+                activeBombBaseScale = activeBomb.transform.localScale;
+                hasBombBaseScale = true;
                 return;
             }
         }
@@ -72,6 +90,7 @@ public class BombDefuseController : MonoBehaviour
 
     private void ResolveSuccess()
     {
+        ResetActiveBombVisual();
         timerActive = false;
         RemainingTime = 0f;
 
@@ -87,6 +106,7 @@ public class BombDefuseController : MonoBehaviour
 
     private void ResolveFailure()
     {
+        ResetActiveBombVisual();
         timerActive = false;
         RemainingTime = 0f;
 
@@ -108,14 +128,46 @@ public class BombDefuseController : MonoBehaviour
         gameManager.OnDefuseResolved(false);
     }
 
-    private static bool IsKeyPressed(KeyCode keyCode)
+    private void ResolveThrownAway()
     {
-        if (Keyboard.current == null)
+        ResetActiveBombVisual();
+        timerActive = false;
+        RemainingTime = 0f;
+
+        if (activeBomb != null)
         {
-            return false;
+            gameManager.RemoveLandedItem(activeBomb);
         }
 
-        Key key = (Key)keyCode;
-        return Keyboard.current[key].wasPressedThisFrame;
+        activeBomb = null;
+        gameManager.OnDefuseResolved(true);
     }
+
+    private void ApplyPulse()
+    {
+        if (!pulseBombWhileActive || activeBomb == null)
+        {
+            return;
+        }
+
+        if (!hasBombBaseScale)
+        {
+            activeBombBaseScale = activeBomb.transform.localScale;
+            hasBombBaseScale = true;
+        }
+
+        float pulse = 1f + Mathf.Sin(Time.time * Mathf.Max(0.1f, pulseSpeed)) * Mathf.Max(0f, pulseScaleAmount);
+        activeBomb.transform.localScale = activeBombBaseScale * pulse;
+    }
+
+    private void ResetActiveBombVisual()
+    {
+        if (activeBomb != null && hasBombBaseScale)
+        {
+            activeBomb.transform.localScale = activeBombBaseScale;
+        }
+
+        hasBombBaseScale = false;
+    }
+
 }

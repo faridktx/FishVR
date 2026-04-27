@@ -138,6 +138,7 @@ MonoBehaviour:
   sellValue: 1
   weight: 1
   isAttachedToNet: 0
+  isDocked: 0
   followStrength: 45
   followDamping: 8
   rotateStrength: 10

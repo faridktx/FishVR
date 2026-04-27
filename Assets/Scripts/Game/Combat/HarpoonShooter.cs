@@ -16,6 +16,12 @@ public class HarpoonShooter : MonoBehaviour
     public Camera aimCamera;
     public LayerMask aimMask = ~0;
 
+    [Header("Desktop Override")]
+    public bool enableDesktopOverride = false;
+    public bool desktopBlocksExternalTriggers = true;
+
+    private bool desktopShotRequested;
+
     private void Reset()
     {
         aimCamera = Camera.main;
@@ -33,15 +39,35 @@ public class HarpoonShooter : MonoBehaviour
             return;
         }
 
+        if (!enableDesktopOverride)
+        {
+            return;
+        }
+
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            //TryShoot();
+            desktopShotRequested = true;
+            TryShoot();
+            desktopShotRequested = false;
         }
     }
 
     public void TryShoot()
     {
-        if (projectilePrefab == null || firePoint == null || runStats.ammo <= 0)
+        if (enableDesktopOverride && desktopBlocksExternalTriggers && !desktopShotRequested)
+        {
+            return;
+        }
+
+        if (
+            gameManager == null ||
+            runStats == null ||
+            gameManager.CurrentPhase != GamePhase.AimShoot ||
+            gameManager.activeProjectile != null ||
+            projectilePrefab == null ||
+            firePoint == null ||
+            runStats.ammo <= 0
+        )
         {
             return;
         }
@@ -54,9 +80,14 @@ public class HarpoonShooter : MonoBehaviour
             Quaternion.LookRotation(shootDirection)
         );
 
+        if (projectile == null)
+        {
+            return;
+        }
+
         projectile.Initialize(gameManager, shootDirection * shootForce);
-        runStats.ConsumeAmmo(1);
         gameManager.OnShotFired(projectile);
+        runStats.ConsumeAmmo(1);
     }
 
     private Vector3 GetAimDirection()
@@ -64,6 +95,21 @@ public class HarpoonShooter : MonoBehaviour
         if (firePoint == null)
         {
             return transform.forward;
+        }
+
+        if (enableDesktopOverride)
+        {
+            Camera cam = aimCamera != null ? aimCamera : Camera.main;
+            if (cam != null)
+            {
+                Ray centerRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+                if (Physics.Raycast(centerRay, out RaycastHit centerHit, maxAimDistance, aimMask))
+                {
+                    return (centerHit.point - firePoint.position).normalized;
+                }
+
+                return centerRay.direction.normalized;
+            }
         }
 
         Ray ray = new Ray(firePoint.position, firePoint.forward);

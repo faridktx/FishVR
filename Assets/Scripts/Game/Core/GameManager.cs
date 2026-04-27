@@ -95,7 +95,22 @@ public class GameManager : MonoBehaviour
 
     private void TickAutoReel()
     {
-        if (activeProjectile == null || dockPoint == null)
+        if (activeProjectile == null)
+        {
+            reelTimer = 0f;
+            runStats?.SetHaulWeight(0f);
+
+            if (runStats == null || runStats.ammo <= 0)
+            {
+                SetPhase(GamePhase.RoundOver);
+                return;
+            }
+
+            SetPhase(GamePhase.AimShoot);
+            return;
+        }
+
+        if (dockPoint == null)
         {
             return;
         }
@@ -107,9 +122,13 @@ public class GameManager : MonoBehaviour
             runStats.SetHaulWeight(activeProjectile.MagnetCollector.GetTotalWeight());
         }
 
+        bool isReturning =
+            activeProjectile.ReturnController != null &&
+            activeProjectile.ReturnController.IsReturning;
+
         float sqrDistance = (activeProjectile.transform.position - dockPoint.position).sqrMagnitude;
         float arrivalSqr = dockArrivalDistance * dockArrivalDistance;
-        bool arrivedAtDock = sqrDistance <= arrivalSqr;
+        bool arrivedAtDock = isReturning && sqrDistance <= arrivalSqr;
         bool timedOut = reelTimer >= maxReelSeconds;
 
         if (!arrivedAtDock && !timedOut)

@@ -3,15 +3,8 @@ using UnityEngine;
 public class LootSpawner : MonoBehaviour
 {
     public LootItem[] lootPrefabs;
-    public GameObject[] lootVisualPrefabs;
     public Transform spawnLineStart;
     public Transform spawnLineEnd;
-
-    [Header("Visuals")]
-    public bool hidePlaceholderVisuals = true;
-    public Vector3 visualLocalPosition;
-    public Vector3 visualLocalEulerAngles;
-    public Vector3 visualLocalScale = Vector3.one;
 
     [Header("Spawn Timing")]
     public bool autoSpawn = true;
@@ -71,7 +64,7 @@ public class LootSpawner : MonoBehaviour
         LootItem prefab = lootPrefabs[Random.Range(0, lootPrefabs.Length)];
         Vector3 spawnPos = GetSpawnPositionOnLine();
         LootItem item = Instantiate(prefab, spawnPos, Random.rotation);
-        ApplyRandomVisual(item);
+
         item.gameObject.AddComponent<SpawnedLootMarker>().owner = this;
         activeCount++;
         return item;
@@ -89,98 +82,6 @@ public class LootSpawner : MonoBehaviour
         Vector3 point = Vector3.Lerp(a, b, Random.value);
         point += Vector3.up * Random.Range(-verticalJitter, verticalJitter);
         return point;
-    }
-
-    private void ApplyRandomVisual(LootItem item)
-    {
-        if (item == null || lootVisualPrefabs == null || lootVisualPrefabs.Length == 0)
-        {
-            return;
-        }
-
-        GameObject visualPrefab = lootVisualPrefabs[Random.Range(0, lootVisualPrefabs.Length)];
-        if (visualPrefab == null)
-        {
-            return;
-        }
-
-        Renderer[] placeholderRenderers = hidePlaceholderVisuals ? item.GetComponentsInChildren<Renderer>() : null;
-        GameObject visual;
-        try
-        {
-            visual = Instantiate(visualPrefab, item.transform);
-        }
-        catch (System.Exception exception)
-        {
-            Debug.LogWarning($"Loot visual '{visualPrefab.name}' could not be spawned, leaving placeholder visible. {exception.Message}", this);
-            return;
-        }
-
-        if (!HasEnabledRenderer(visual))
-        {
-            DestroyCreatedVisual(visual);
-            Debug.LogWarning($"Loot visual '{visualPrefab.name}' has no enabled renderers, leaving placeholder visible.", this);
-            return;
-        }
-
-        visual.name = visualPrefab.name;
-        Transform visualTransform = visual.transform;
-        Vector3 prefabLocalScale = visualTransform.localScale;
-        visualTransform.localPosition = visualLocalPosition;
-        visualTransform.localRotation = Quaternion.Euler(visualLocalEulerAngles);
-        visualTransform.localScale = Vector3.Scale(prefabLocalScale, visualLocalScale);
-
-        if (hidePlaceholderVisuals)
-        {
-            SetRenderersEnabled(placeholderRenderers, false);
-        }
-    }
-
-    private static bool HasEnabledRenderer(GameObject visual)
-    {
-        if (visual == null)
-        {
-            return false;
-        }
-
-        Renderer[] visualRenderers = visual.GetComponentsInChildren<Renderer>(true);
-        for (int i = 0; i < visualRenderers.Length; i++)
-        {
-            if (visualRenderers[i].enabled)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static void SetRenderersEnabled(Renderer[] renderers, bool enabled)
-    {
-        if (renderers == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            if (renderers[i] != null)
-            {
-                renderers[i].enabled = enabled;
-            }
-        }
-    }
-
-    private static void DestroyCreatedVisual(GameObject visual)
-    {
-        if (Application.isPlaying)
-        {
-            Destroy(visual);
-        }
-        else
-        {
-            DestroyImmediate(visual);
-        }
     }
 
     private void OnDrawGizmosSelected()
