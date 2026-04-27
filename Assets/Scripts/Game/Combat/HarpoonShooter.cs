@@ -61,17 +61,17 @@ public class HarpoonShooter : MonoBehaviour
 
     private Vector3 GetAimDirection()
     {
-        if (aimCamera == null)
+        if (firePoint == null)
         {
-            return firePoint.forward;
+            return transform.forward;
         }
 
-        Ray ray = new Ray(aimCamera.transform.position, aimCamera.transform.forward);
+        Ray ray = new Ray(firePoint.position, firePoint.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, maxAimDistance, aimMask))
         {
             return (hit.point - firePoint.position).normalized;
         }
 
-        return aimCamera.transform.forward;
+        return firePoint.forward;
     }
 }
