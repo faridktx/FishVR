@@ -31,11 +31,18 @@ public class ShopCardVisual : MonoBehaviour
         SetVisual(hoverColor, originalScale * hoverScale);
     }
 
+    public UnityEngine.Events.UnityEvent onCardPressed;
+
     public void SetPressed()
     {
         Debug.Log(powerupName + " selected");
         SetVisual(pressedColor, originalScale * pressedScale);
         StartCoroutine(ReturnToHover());
+        
+        if (onCardPressed != null)
+        {
+            onCardPressed.Invoke();
+        }
     }
 
     public void SetNormal()
