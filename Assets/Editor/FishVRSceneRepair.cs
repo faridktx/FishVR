@@ -52,13 +52,8 @@ public static class FishVRSceneRepair
         LootSpawner[] spawners = Object.FindObjectsByType<LootSpawner>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         for (int i = 0; i < spawners.Length; i++)
         {
-            Undo.RecordObject(spawners[i], "Assign loot visual prefabs");
+            Undo.RecordObject(spawners[i], "Assign loot prefabs");
             spawners[i].lootPrefabs = lootPrefabs;
-            spawners[i].lootVisualPrefabs = visualPrefabs.ToArray();
-            spawners[i].hidePlaceholderVisuals = true;
-            spawners[i].visualLocalPosition = Vector3.zero;
-            spawners[i].visualLocalEulerAngles = Vector3.zero;
-            spawners[i].visualLocalScale = Vector3.one;
             EditorUtility.SetDirty(spawners[i]);
             EditorSceneManager.MarkSceneDirty(spawners[i].gameObject.scene);
         }
@@ -150,8 +145,8 @@ public static class FishVRSceneRepair
         AssertVisualPrefabMaterials();
         AssertPierSceneState();
         AssertSceneSpawner();
-        AssertSpawnedVisualReplacesPlaceholderAndPreservesScale();
-        Debug.Log("FishVRSceneRepair setup check passed: pier is using the restored mesh, loot visuals are colored/wired, placeholders hidden, prefab scale preserved.");
+        AssertSpawnedPrefabPreservesRendererAndScale();
+        Debug.Log("FishVRSceneRepair setup check passed: pier is using the restored mesh, loot prefabs are wired, and spawned prefab scale is preserved.");
     }
 
     private static GameObject BuildVisualPrefab(string modelPath, string prefabName, float localScale)
@@ -303,31 +298,29 @@ public static class FishVRSceneRepair
         }
 
         AssertCondition(sceneSpawner != null, "No scene LootSpawner found.");
-        AssertCondition(sceneSpawner.hidePlaceholderVisuals, "LootSpawner must hide placeholder visuals.");
-        AssertCondition(sceneSpawner.visualLocalScale == Vector3.one, "LootSpawner visualLocalScale should remain a neutral multiplier.");
+        AssertCondition(sceneSpawner.lootPrefabs != null && sceneSpawner.lootPrefabs.Length > 0, "LootSpawner must have loot prefabs assigned.");
 
-        for (int i = 0; i < LootVisualModels.Length; i++)
+        for (int i = 0; i < LootBasePrefabPaths.Length; i++)
         {
-            AssertCondition(HasAssignedVisual(sceneSpawner, LootVisualModels[i].prefabName), $"LootSpawner is missing visual prefab {LootVisualModels[i].prefabName}.");
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(LootBasePrefabPaths[i]);
+            AssertCondition(prefab != null, $"Missing loot prefab at {LootBasePrefabPaths[i]}.");
+            LootItem lootItem = prefab.GetComponent<LootItem>();
+            AssertCondition(lootItem != null, $"Loot prefab at {LootBasePrefabPaths[i]} does not have a LootItem component.");
+            AssertCondition(HasAssignedLootPrefab(sceneSpawner, lootItem), $"LootSpawner is missing loot prefab {LootBasePrefabPaths[i]}.");
         }
     }
 
-    private static void AssertSpawnedVisualReplacesPlaceholderAndPreservesScale()
+    private static void AssertSpawnedPrefabPreservesRendererAndScale()
     {
         GameObject lootRoot = GameObject.CreatePrimitive(PrimitiveType.Cube);
         lootRoot.name = "AssertLootPlaceholder";
+        lootRoot.transform.localScale = new Vector3(2f, 3f, 4f);
         lootRoot.AddComponent<Rigidbody>();
         LootItem lootPrefab = lootRoot.AddComponent<LootItem>();
-
-        GameObject visualPrefab = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        visualPrefab.name = "AssertScaledVisual";
-        visualPrefab.transform.localScale = new Vector3(2f, 3f, 4f);
 
         GameObject spawnerObject = new GameObject("AssertSpawner");
         LootSpawner spawner = spawnerObject.AddComponent<LootSpawner>();
         spawner.lootPrefabs = new[] { lootPrefab };
-        spawner.lootVisualPrefabs = new[] { visualPrefab };
-        spawner.visualLocalScale = new Vector3(1.5f, 1f, 0.5f);
 
         LootItem spawned = null;
         try
@@ -337,13 +330,8 @@ public static class FishVRSceneRepair
 
             AssertCondition(spawned != null, "SpawnOne returned null.");
             Renderer placeholderRenderer = spawned.GetComponent<Renderer>();
-            AssertCondition(placeholderRenderer != null && !placeholderRenderer.enabled, "Spawned root placeholder renderer is still visible.");
-            AssertCondition(spawned.transform.childCount == 1, "Spawned loot should have exactly one visual child.");
-
-            Transform visual = spawned.transform.GetChild(0);
-            AssertCondition(visual.name == visualPrefab.name, "Spawned visual child has the wrong prefab name.");
-            AssertCondition(visual.GetComponent<Renderer>() != null && visual.GetComponent<Renderer>().enabled, "Spawned visual child renderer is not enabled.");
-            AssertVectorScale(visual.localScale, new Vector3(3f, 3f, 2f), "Spawned visual did not preserve prefab scale.");
+            AssertCondition(placeholderRenderer != null && placeholderRenderer.enabled, "Spawned loot prefab renderer is not visible.");
+            AssertVectorScale(spawned.transform.localScale, new Vector3(2f, 3f, 4f), "Spawned loot prefab did not preserve scale.");
         }
         finally
         {
@@ -354,7 +342,6 @@ public static class FishVRSceneRepair
 
             Object.DestroyImmediate(spawnerObject);
             Object.DestroyImmediate(lootRoot);
-            Object.DestroyImmediate(visualPrefab);
         }
     }
 
@@ -429,16 +416,16 @@ public static class FishVRSceneRepair
         return false;
     }
 
-    private static bool HasAssignedVisual(LootSpawner spawner, string prefabName)
+    private static bool HasAssignedLootPrefab(LootSpawner spawner, LootItem lootPrefab)
     {
-        if (spawner.lootVisualPrefabs == null)
+        if (spawner.lootPrefabs == null)
         {
             return false;
         }
 
-        for (int i = 0; i < spawner.lootVisualPrefabs.Length; i++)
+        for (int i = 0; i < spawner.lootPrefabs.Length; i++)
         {
-            if (spawner.lootVisualPrefabs[i] != null && spawner.lootVisualPrefabs[i].name == prefabName)
+            if (spawner.lootPrefabs[i] == lootPrefab)
             {
                 return true;
             }

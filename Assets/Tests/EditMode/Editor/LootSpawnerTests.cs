@@ -5,15 +5,12 @@ using UnityEngine;
 public class LootSpawnerTests
 {
     [Test]
-    public void SpawnOne_AttachesRandomVisualAndHidesPlaceholderRenderer()
+    public void SpawnOne_InstantiatesAssignedLootPrefabWithVisibleRenderer()
     {
         LootItem lootPrefab = CreateLootPrefab();
-        GameObject visualPrefab = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        visualPrefab.name = "Visual_Can";
 
         LootSpawner spawner = new GameObject("Spawner").AddComponent<LootSpawner>();
         spawner.lootPrefabs = new[] { lootPrefab };
-        spawner.lootVisualPrefabs = new[] { visualPrefab };
 
         LootItem spawned = null;
         try
@@ -21,42 +18,10 @@ public class LootSpawnerTests
             spawned = InvokeSpawnOne(spawner);
 
             Assert.IsNotNull(spawned);
-            Assert.IsFalse(spawned.GetComponent<Renderer>().enabled);
-            Assert.AreEqual(1, spawned.transform.childCount);
-            Assert.AreEqual("Visual_Can", spawned.transform.GetChild(0).name);
-            Assert.IsTrue(spawned.transform.GetChild(0).GetComponent<Renderer>().enabled);
-        }
-        finally
-        {
-            if (spawned != null)
-            {
-                Object.DestroyImmediate(spawned.gameObject);
-            }
-
-            Object.DestroyImmediate(spawner.gameObject);
-            Object.DestroyImmediate(lootPrefab.gameObject);
-            Object.DestroyImmediate(visualPrefab);
-        }
-    }
-
-    [Test]
-    public void SpawnOne_KeepsPlaceholderVisibleWhenVisualHasNoRenderer()
-    {
-        LootItem lootPrefab = CreateLootPrefab();
-        GameObject visualPrefab = new GameObject("Broken_Visual");
-
-        LootSpawner spawner = new GameObject("Spawner").AddComponent<LootSpawner>();
-        spawner.lootPrefabs = new[] { lootPrefab };
-        spawner.lootVisualPrefabs = new[] { visualPrefab };
-
-        LootItem spawned = null;
-        try
-        {
-            spawned = InvokeSpawnOne(spawner);
-
-            Assert.IsNotNull(spawned);
+            Assert.AreNotSame(lootPrefab, spawned);
+            Assert.IsTrue(spawned.name.StartsWith(lootPrefab.name));
             Assert.IsTrue(spawned.GetComponent<Renderer>().enabled);
-            Assert.AreEqual(0, spawned.transform.childCount);
+            Assert.IsNotNull(spawned.GetComponent<SpawnedLootMarker>());
         }
         finally
         {
@@ -67,30 +32,54 @@ public class LootSpawnerTests
 
             Object.DestroyImmediate(spawner.gameObject);
             Object.DestroyImmediate(lootPrefab.gameObject);
-            Object.DestroyImmediate(visualPrefab);
         }
     }
 
     [Test]
-    public void SpawnOne_PreservesPrefabVisualScale()
+    public void SpawnOne_ReturnsNullWhenSpawnerHasReachedMaxAlive()
     {
         LootItem lootPrefab = CreateLootPrefab();
-        GameObject visualPrefab = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        visualPrefab.name = "Scaled_Visual";
-        visualPrefab.transform.localScale = new Vector3(2f, 3f, 4f);
 
         LootSpawner spawner = new GameObject("Spawner").AddComponent<LootSpawner>();
         spawner.lootPrefabs = new[] { lootPrefab };
-        spawner.lootVisualPrefabs = new[] { visualPrefab };
-        spawner.visualLocalScale = new Vector3(1.5f, 1f, 0.5f);
+        spawner.maxAlive = 1;
+
+        LootItem spawned = null;
+        try
+        {
+            spawned = InvokeSpawnOne(spawner);
+            LootItem blockedSpawn = InvokeSpawnOne(spawner);
+
+            Assert.IsNotNull(spawned);
+            Assert.IsNull(blockedSpawn);
+        }
+        finally
+        {
+            if (spawned != null)
+            {
+                Object.DestroyImmediate(spawned.gameObject);
+            }
+
+            Object.DestroyImmediate(spawner.gameObject);
+            Object.DestroyImmediate(lootPrefab.gameObject);
+        }
+    }
+
+    [Test]
+    public void SpawnOne_PreservesLootPrefabScale()
+    {
+        LootItem lootPrefab = CreateLootPrefab();
+        lootPrefab.transform.localScale = new Vector3(2f, 3f, 4f);
+
+        LootSpawner spawner = new GameObject("Spawner").AddComponent<LootSpawner>();
+        spawner.lootPrefabs = new[] { lootPrefab };
 
         LootItem spawned = null;
         try
         {
             spawned = InvokeSpawnOne(spawner);
 
-            Transform visual = spawned.transform.GetChild(0);
-            Assert.AreEqual(new Vector3(3f, 3f, 2f), visual.localScale);
+            Assert.AreEqual(new Vector3(2f, 3f, 4f), spawned.transform.localScale);
         }
         finally
         {
@@ -101,7 +90,6 @@ public class LootSpawnerTests
 
             Object.DestroyImmediate(spawner.gameObject);
             Object.DestroyImmediate(lootPrefab.gameObject);
-            Object.DestroyImmediate(visualPrefab);
         }
     }
 
