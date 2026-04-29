@@ -129,8 +129,12 @@ public class ReturnToWaistOnRelease : MonoBehaviour
     {
         if (body != null)
         {
-            body.linearVelocity = Vector3.zero;
-            body.angularVelocity = Vector3.zero;
+            if (!body.isKinematic)
+            {
+                body.linearVelocity = Vector3.zero;
+                body.angularVelocity = Vector3.zero;
+            }
+
             body.isKinematic = true;
             body.useGravity = false;
         }

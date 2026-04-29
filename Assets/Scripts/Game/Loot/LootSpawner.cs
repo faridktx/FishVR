@@ -15,6 +15,13 @@ public class LootSpawner : MonoBehaviour
     [Header("Height")]
     public float verticalJitter = 0.15f;
 
+    [Header("Visuals")]
+    public GameObject[] lootVisualPrefabs;
+    public bool hidePlaceholderVisuals = true;
+    public Vector3 visualLocalPosition = Vector3.zero;
+    public Vector3 visualLocalEulerAngles = Vector3.zero;
+    public Vector3 visualLocalScale = Vector3.one;
+
     private float spawnTimer;
     private int activeCount;
 
@@ -65,6 +72,7 @@ public class LootSpawner : MonoBehaviour
         Vector3 spawnPos = GetSpawnPositionOnLine();
         LootItem item = Instantiate(prefab, spawnPos, Random.rotation);
 
+        AttachRandomVisual(item);
         item.gameObject.AddComponent<SpawnedLootMarker>().owner = this;
         activeCount++;
         return item;
@@ -82,6 +90,41 @@ public class LootSpawner : MonoBehaviour
         Vector3 point = Vector3.Lerp(a, b, Random.value);
         point += Vector3.up * Random.Range(-verticalJitter, verticalJitter);
         return point;
+    }
+
+    private void AttachRandomVisual(LootItem item)
+    {
+        if (item == null || lootVisualPrefabs == null || lootVisualPrefabs.Length == 0)
+        {
+            return;
+        }
+
+        GameObject visualPrefab = lootVisualPrefabs[Random.Range(0, lootVisualPrefabs.Length)];
+        if (visualPrefab == null || visualPrefab.GetComponentsInChildren<Renderer>(true).Length == 0)
+        {
+            return;
+        }
+
+        GameObject visual = Instantiate(visualPrefab, item.transform);
+        visual.name = visualPrefab.name;
+        visual.transform.localPosition = visualLocalPosition;
+        visual.transform.localRotation = Quaternion.Euler(visualLocalEulerAngles);
+        visual.transform.localScale = Vector3.Scale(visualPrefab.transform.localScale, visualLocalScale);
+
+        Renderer[] visualRenderers = visual.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < visualRenderers.Length; i++)
+        {
+            visualRenderers[i].enabled = true;
+        }
+
+        if (hidePlaceholderVisuals)
+        {
+            Renderer placeholderRenderer = item.GetComponent<Renderer>();
+            if (placeholderRenderer != null)
+            {
+                placeholderRenderer.enabled = false;
+            }
+        }
     }
 
     private void OnDrawGizmosSelected()
