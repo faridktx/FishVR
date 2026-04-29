@@ -27,25 +27,13 @@ public static class FishVRSceneRepair
         "Assets/Prefabs/Game/Loot_bomb.prefab",
     };
 
-    [MenuItem("Tools/FishVR/Rebuild Loot Visuals And Rewire Scene")]
-    public static void RebuildLootVisualsAndRewireScene()
+    [MenuItem("Tools/FishVR/Rewire Loot Prefabs In Scene")]
+    public static void RewireLootPrefabsInScene()
     {
         if (EditorApplication.isPlaying)
         {
-            Debug.LogWarning("Exit Play Mode before rebuilding loot visuals.");
+            Debug.LogWarning("Exit Play Mode before rewiring loot prefabs.");
             return;
-        }
-
-        Directory.CreateDirectory(VisualPrefabFolder);
-
-        List<GameObject> visualPrefabs = new List<GameObject>();
-        for (int i = 0; i < LootVisualModels.Length; i++)
-        {
-            GameObject visualPrefab = BuildVisualPrefab(LootVisualModels[i].assetPath, LootVisualModels[i].prefabName, LootVisualModels[i].localScale);
-            if (visualPrefab != null)
-            {
-                visualPrefabs.Add(visualPrefab);
-            }
         }
 
         LootItem[] lootPrefabs = LoadLootPrefabs();
@@ -62,7 +50,7 @@ public static class FishVRSceneRepair
 
         AssetDatabase.SaveAssets();
         EditorSceneManager.SaveOpenScenes();
-        Debug.Log($"FishVRSceneRepair rebuilt {visualPrefabs.Count} loot visual prefabs, assigned {lootPrefabs.Length} base prefab assets to {spawners.Length} LootSpawner object(s), and deactivated {deactivatedTemplates} scene template loot object(s).");
+        Debug.Log($"FishVRSceneRepair assigned {lootPrefabs.Length} loot prefab asset(s) to {spawners.Length} LootSpawner object(s), and deactivated {deactivatedTemplates} scene template loot object(s).");
     }
 
     [MenuItem("Tools/FishVR/Reimport Pier FBX")]
@@ -141,8 +129,6 @@ public static class FishVRSceneRepair
             throw new System.InvalidOperationException("Exit Play Mode before asserting loot and pier setup.");
         }
 
-        AssertVisualPrefabScales();
-        AssertVisualPrefabMaterials();
         AssertPierSceneState();
         AssertSceneSpawner();
         AssertSpawnedPrefabPreservesRendererAndScale();
