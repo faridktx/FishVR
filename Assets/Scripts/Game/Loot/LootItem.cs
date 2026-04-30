@@ -29,7 +29,6 @@ public class LootItem : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         itemCollider = GetComponent<Collider>();
-        EnsureVrGrabSetup();
     }
 
     private void FixedUpdate()
@@ -188,14 +187,6 @@ public class LootItem : MonoBehaviour
     public void SetDocked(bool value)
     {
         isDocked = value;
-    }
-
-    private void EnsureVrGrabSetup()
-    {
-        if (GetComponent<VrLootGrabSetup>() == null)
-        {
-            gameObject.AddComponent<VrLootGrabSetup>();
-        }
     }
 
     private void SetIgnoreCollisionWithTarget(bool ignore)
