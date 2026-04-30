@@ -18,21 +18,59 @@ public class LootItem : MonoBehaviour
     public float rotateStrength = 10f;
     public float maxFollowSpeed = 8f;
 
+    [Header("Dock Hover")]
+    public float dockHoverAmplitude = 0.06f;
+    public float dockHoverFrequency = 1.2f;
+    public float dockHoverTurnSpeed = 18f;
+
     private Rigidbody rb;
     private Collider itemCollider;
     private Transform followTarget;
     private Vector3 followLocalOffset;
     private readonly List<Collider> ignoredColliders = new List<Collider>();
     private Coroutine tableDropRoutine;
+    private bool isHoveringAtDock;
+    private Vector3 dockHoverBasePosition;
+    private float dockHoverPhase;
+    private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         itemCollider = GetComponent<Collider>();
+        grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+    }
+
+    private void OnEnable()
+    {
+        if (grabInteractable == null)
+        {
+            return;
+        }
+
+        grabInteractable.selectEntered.AddListener(OnVrGrabbed);
+        grabInteractable.selectExited.AddListener(OnVrReleased);
+    }
+
+    private void OnDisable()
+    {
+        if (grabInteractable == null)
+        {
+            return;
+        }
+
+        grabInteractable.selectEntered.RemoveListener(OnVrGrabbed);
+        grabInteractable.selectExited.RemoveListener(OnVrReleased);
     }
 
     private void FixedUpdate()
     {
+        if (isHoveringAtDock)
+        {
+            UpdateDockHover();
+            return;
+        }
+
         if (!isAttachedToNet || rb == null || followTarget == null || rb.isKinematic)
         {
             return;
@@ -66,6 +104,8 @@ public class LootItem : MonoBehaviour
 
     public void AttachTo(Transform target, Vector3 localOffset)
     {
+        StopDockHover();
+
         isDocked = false;
         isAttachedToNet = true;
         followTarget = target;
@@ -105,6 +145,7 @@ public class LootItem : MonoBehaviour
 
     public void PlaceOnTable(Vector3 worldPosition, float holdDuration, float releaseDownwardSpeed)
     {
+        StopDockHover();
         isDocked = true;
 
         if (tableDropRoutine != null)
@@ -115,8 +156,46 @@ public class LootItem : MonoBehaviour
         tableDropRoutine = StartCoroutine(TableDropRoutine(worldPosition, holdDuration, releaseDownwardSpeed));
     }
 
+    public void PlaceAtDockHover(Vector3 worldPosition)
+    {
+        if (tableDropRoutine != null)
+        {
+            StopCoroutine(tableDropRoutine);
+            tableDropRoutine = null;
+        }
+
+        isAttachedToNet = false;
+        followTarget = null;
+        followLocalOffset = Vector3.zero;
+        SetIgnoreCollisionWithTarget(false);
+
+        isDocked = true;
+        isHoveringAtDock = true;
+        dockHoverBasePosition = worldPosition;
+        dockHoverPhase = Random.Range(0f, Mathf.PI * 2f);
+
+        transform.position = worldPosition;
+        transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+
+        if (itemCollider != null)
+        {
+            itemCollider.enabled = true;
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+        }
+    }
+
     public void PrepareForVrGrab()
     {
+        StopDockHover();
+
         if (tableDropRoutine != null)
         {
             StopCoroutine(tableDropRoutine);
@@ -146,6 +225,8 @@ public class LootItem : MonoBehaviour
 
     public void HandleVrRelease()
     {
+        StopDockHover();
+
         if (rb != null)
         {
             rb.isKinematic = false;
@@ -187,6 +268,53 @@ public class LootItem : MonoBehaviour
     public void SetDocked(bool value)
     {
         isDocked = value;
+
+        if (!value)
+        {
+            StopDockHover();
+        }
+    }
+
+    private void UpdateDockHover()
+    {
+        float bob = Mathf.Sin(Time.time * dockHoverFrequency + dockHoverPhase) * dockHoverAmplitude;
+        Vector3 hoverPosition = dockHoverBasePosition + Vector3.up * bob;
+
+        if (rb != null)
+        {
+            rb.MovePosition(hoverPosition);
+            rb.MoveRotation(rb.rotation * Quaternion.Euler(0f, dockHoverTurnSpeed * Time.fixedDeltaTime, 0f));
+            return;
+        }
+
+        transform.position = hoverPosition;
+        transform.Rotate(Vector3.up, dockHoverTurnSpeed * Time.fixedDeltaTime, Space.World);
+    }
+
+    private void StopDockHover()
+    {
+        if (!isHoveringAtDock)
+        {
+            return;
+        }
+
+        isHoveringAtDock = false;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
+    private void OnVrGrabbed(UnityEngine.XR.Interaction.Toolkit.SelectEnterEventArgs args)
+    {
+        PrepareForVrGrab();
+    }
+
+    private void OnVrReleased(UnityEngine.XR.Interaction.Toolkit.SelectExitEventArgs args)
+    {
+        HandleVrRelease();
     }
 
     private void SetIgnoreCollisionWithTarget(bool ignore)

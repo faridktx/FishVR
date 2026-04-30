@@ -185,11 +185,6 @@ public class GameManager : MonoBehaviour
                     continue;
                 }
 
-                if (tableSpawnPoint != null)
-                {
-                    item.transform.position = GetDropPosition(i);
-                }
-
                 Rigidbody itemRb = item.GetComponent<Rigidbody>();
                 if (itemRb != null)
                 {
@@ -197,12 +192,7 @@ public class GameManager : MonoBehaviour
                     itemRb.angularVelocity = Vector3.zero;
                 }
 
-                float hold = tableSettleHoldDuration + i * tableReleaseStagger;
-                item.PlaceOnTable(
-                    GetDropPosition(i),
-                    hold,
-                    tableReleaseDownwardSpeed
-                );
+                item.PlaceAtDockHover(GetDropPosition(i));
 
                 landedItems.Add(item);
             }
