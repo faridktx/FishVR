@@ -5,6 +5,8 @@ public class RunStats : MonoBehaviour
     [Header("Starting Values")]
     public int startingAmmo = 5;
     public int startingCoins;
+
+    public int totalCoinsEarned;
     public int startingHp = 100;
     public int maxHp = 100;
 
@@ -45,6 +47,7 @@ public class RunStats : MonoBehaviour
     public void AddCoins(int amount)
     {
         coins = Mathf.Max(0, coins + amount);
+        totalCoinsEarned += Mathf.Max(0, amount);
     }
 
     public void AddShield(int amount)

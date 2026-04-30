@@ -30,10 +30,17 @@ public class GameManager : MonoBehaviour
     public bool startAtMainMenu = true;
     [SerializeField] private GamePhase currentPhase = GamePhase.AimShoot;
 
+    [Header("Player Positioning")]
+    public Transform playerRig;
+    public Transform mainMenuSpawnPoint;
+
     [Header("Runtime")]
     public NetProjectile activeProjectile;
     private bool isResolvingDockLanding;
     private float reelTimer;
+    private bool hasCachedScenePlayerTransform;
+    private Vector3 cachedScenePlayerPosition;
+    private Quaternion cachedScenePlayerRotation;
 
     private readonly List<LootItem> landedItems = new List<LootItem>();
 
@@ -44,9 +51,12 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        CacheScenePlayerTransform();
+
         if (startAtMainMenu)
         {
             runStats?.ResetRun();
+            MovePlayerToMainMenuSpawn();
             SetPhase(GamePhase.MainMenu);
             return;
         }
@@ -330,6 +340,7 @@ public class GameManager : MonoBehaviour
 
         reelTimer = 0f;
         isResolvingDockLanding = false;
+        MovePlayerToCachedSceneTransform();
         SetPhase(GamePhase.AimShoot);
     }
 
@@ -343,6 +354,62 @@ public class GameManager : MonoBehaviour
             activeProjectile = null;
         }
 
+        MovePlayerToMainMenuSpawn();
         SetPhase(GamePhase.MainMenu);
+    }
+
+    private void CacheScenePlayerTransform()
+    {
+        if (playerRig == null)
+        {
+            return;
+        }
+
+        cachedScenePlayerPosition = playerRig.position;
+        cachedScenePlayerRotation = playerRig.rotation;
+        hasCachedScenePlayerTransform = true;
+    }
+
+    private void MovePlayerToMainMenuSpawn()
+    {
+        if (playerRig == null || mainMenuSpawnPoint == null)
+        {
+            return;
+        }
+
+        TeleportPlayer(mainMenuSpawnPoint.position, mainMenuSpawnPoint.rotation);
+    }
+
+    private void MovePlayerToCachedSceneTransform()
+    {
+        if (playerRig == null || !hasCachedScenePlayerTransform)
+        {
+            return;
+        }
+
+        TeleportPlayer(cachedScenePlayerPosition, cachedScenePlayerRotation);
+    }
+
+    private void TeleportPlayer(Vector3 worldPosition, Quaternion worldRotation)
+    {
+        CharacterController characterController = playerRig.GetComponent<CharacterController>();
+        if (characterController != null)
+        {
+            characterController.enabled = false;
+        }
+
+        Rigidbody rigidbody = playerRig.GetComponent<Rigidbody>();
+        if (rigidbody != null)
+        {
+            rigidbody.linearVelocity = Vector3.zero;
+            rigidbody.angularVelocity = Vector3.zero;
+        }
+
+        playerRig.SetPositionAndRotation(worldPosition, worldRotation);
+
+        if (characterController != null)
+        {
+            characterController.enabled = true;
+        }
     }
 }

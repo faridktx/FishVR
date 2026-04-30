@@ -19,6 +19,7 @@ public class MvpMenuController : MonoBehaviour
     [Header("VR Placement")]
     public Transform headset;
     public float menuDistance = 1.8f;
+    public float deathMenuDistance = 1f;
     public float menuHeightOffset = -0.05f;
     public Vector2 menuSize = new Vector2(900f, 520f);
     public float menuWorldScale = 0.002f;
@@ -35,6 +36,9 @@ public class MvpMenuController : MonoBehaviour
     private TMP_Text deathSummaryText;
     private GamePhase lastPhase;
     private GameManager subscribedGameManager;
+    private bool hasMainMenuAnchorPose;
+    private Vector3 mainMenuAnchorPosition;
+    private Quaternion mainMenuAnchorRotation;
 
     private void Awake()
     {
@@ -74,6 +78,8 @@ public class MvpMenuController : MonoBehaviour
             hudDisplay.bindToRunStats = true;
         }
 
+        CacheMainMenuAnchorPose();
+
         ConfigureVrCanvases();
         SubscribeToPhaseChanges();
         lastPhase = gameManager != null ? gameManager.CurrentPhase : GamePhase.MainMenu;
@@ -108,6 +114,11 @@ public class MvpMenuController : MonoBehaviour
         {
             lastPhase = gameManager.CurrentPhase;
             RefreshVisibility();
+        }
+
+        if (gameManager.CurrentPhase == GamePhase.Death)
+        {
+            PlaceDeathMenuInFrontOfHeadset();
         }
 
         if (!enableKeyboardFallback || Keyboard.current == null)
@@ -188,13 +199,35 @@ public class MvpMenuController : MonoBehaviour
 
         if (deathSummaryText != null && runStats != null)
         {
-            deathSummaryText.text = "HP " + runStats.hp + "/" + runStats.maxHp + "   Coins " + runStats.coins;
+            deathSummaryText.text = "HP: " + runStats.hp + "/" + runStats.maxHp + "   Coins Earned:" + runStats.totalCoinsEarned;
         }
 
-        if (showMain || showDeath)
+        if (showMain)
         {
-            PlaceMenuInFrontOfHeadset();
+            RestoreMainMenuAnchorPose();
         }
+        else if (showDeath)
+        {
+            PlaceDeathMenuInFrontOfHeadset();
+        }
+    }
+
+    private void CacheMainMenuAnchorPose()
+    {
+        mainMenuAnchorPosition = transform.position;
+        mainMenuAnchorRotation = transform.rotation;
+        hasMainMenuAnchorPose = true;
+    }
+
+    private void RestoreMainMenuAnchorPose()
+    {
+        if (!hasMainMenuAnchorPose)
+        {
+            CacheMainMenuAnchorPose();
+            return;
+        }
+
+        transform.SetPositionAndRotation(mainMenuAnchorPosition, mainMenuAnchorRotation);
     }
 
     private void BuildMenuUi()
@@ -230,13 +263,12 @@ public class MvpMenuController : MonoBehaviour
             gameObject.AddComponent<TrackedDeviceGraphicRaycaster>();
         }
 
-        mainMenuRoot = CreatePanel("MainMenu", "FISHVR", "Catch junk, avoid the microwave bombs, sell trash, buy ammo and shields.", "START", StartRun);
+        mainMenuRoot = CreatePanel("MainMenu", "Apocafish", "Catch junk, avoid the microwave bombs, sell trash, buy ammo and shields.", "START", StartRun);
         deathMenuRoot = CreatePanel("DeathMenu", "YOU DIED", "The bomb damage took your last HP.", "RETRY", StartRun);
         deathSummaryText = CreateLabel(deathMenuRoot.transform, "DeathSummary", "", 20f, new Vector2(0f, -25f), new Vector2(620f, 36f), new Color(0.9f, 0.95f, 1f));
 
         Button menuButton = CreateButton(deathMenuRoot.transform, "MainMenuButton", "MAIN MENU", new Vector2(0f, -135f), ReturnToMainMenu);
         menuButton.GetComponent<RectTransform>().sizeDelta = new Vector2(260f, 56f);
-        PlaceMenuInFrontOfHeadset();
     }
 
     private void ConfigureVrCanvases()
@@ -305,7 +337,7 @@ public class MvpMenuController : MonoBehaviour
         hudDisplay.transform.localScale = Vector3.one * hudWorldScale;
     }
 
-    private void PlaceMenuInFrontOfHeadset()
+    private void PlaceDeathMenuInFrontOfHeadset()
     {
         if (headset == null)
         {
@@ -319,7 +351,7 @@ public class MvpMenuController : MonoBehaviour
         }
 
         forward.Normalize();
-        transform.position = headset.position + forward * Mathf.Max(0.5f, menuDistance) + Vector3.up * menuHeightOffset;
+        transform.position = headset.position + forward * Mathf.Max(0.1f, deathMenuDistance) + Vector3.up * menuHeightOffset;
         transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
 

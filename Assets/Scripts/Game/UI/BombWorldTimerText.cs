@@ -8,6 +8,8 @@ public class BombWorldTimerText : MonoBehaviour
     public LootItem ownerBomb;
     public Camera lookCamera;
     public string prefix = "";
+    public float rightOffset = 0.12f;
+    public float upOffset = 0.12f;
 
     private TMP_Text timerText;
 
@@ -46,6 +48,9 @@ public class BombWorldTimerText : MonoBehaviour
         Camera cam = lookCamera != null ? lookCamera : Camera.main;
         if (cam != null)
         {
+            Vector3 anchor = ownerBomb != null ? ownerBomb.transform.position : transform.position;
+            transform.position = anchor + cam.transform.right * rightOffset + cam.transform.up * upOffset;
+
             Vector3 toCamera = transform.position - cam.transform.position;
             if (toCamera.sqrMagnitude > 0.0001f)
             {
