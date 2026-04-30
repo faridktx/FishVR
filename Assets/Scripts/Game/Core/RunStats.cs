@@ -41,7 +41,13 @@ public class RunStats : MonoBehaviour
 
     public void AddAmmo(int amount)
     {
-        ammo = Mathf.Max(0, ammo + amount);
+        if (ammo + amount > 10)
+        {
+            amount = 10;
+        }
+        else{
+            ammo = Mathf.Max(0, ammo + amount);
+        }
     }
 
     public void AddCoins(int amount)
@@ -52,7 +58,13 @@ public class RunStats : MonoBehaviour
 
     public void AddShield(int amount)
     {
+        if (shieldCharges + amount > 10)
+        {
+            amount = 10;
+        }
+        else{
         shieldCharges = Mathf.Max(0, shieldCharges + amount);
+        }
     }
 
     public bool TryConsumeShield(int amount = 1)

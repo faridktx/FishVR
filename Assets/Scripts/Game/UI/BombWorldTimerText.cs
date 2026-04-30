@@ -10,8 +10,10 @@ public class BombWorldTimerText : MonoBehaviour
     public string prefix = "";
     public float rightOffset = 0.12f;
     public float upOffset = 0.12f;
+    public float towardCameraOffset = 0.04f;
 
     private TMP_Text timerText;
+    private Renderer ownerRenderer;
 
     private void Awake()
     {
@@ -20,6 +22,11 @@ public class BombWorldTimerText : MonoBehaviour
         if (ownerBomb == null)
         {
             ownerBomb = GetComponentInParent<LootItem>();
+        }
+
+        if (ownerBomb != null)
+        {
+            ownerRenderer = ownerBomb.GetComponentInChildren<Renderer>();
         }
     }
 
@@ -48,10 +55,14 @@ public class BombWorldTimerText : MonoBehaviour
         Camera cam = lookCamera != null ? lookCamera : Camera.main;
         if (cam != null)
         {
-            Vector3 anchor = ownerBomb != null ? ownerBomb.transform.position : transform.position;
-            transform.position = anchor + cam.transform.right * rightOffset + cam.transform.up * upOffset;
+            Vector3 anchor = GetAnchorPosition();
+            transform.position =
+                anchor
+                + cam.transform.right * rightOffset
+                + cam.transform.up * upOffset
+                + cam.transform.forward * towardCameraOffset;
 
-            Vector3 toCamera = transform.position - cam.transform.position;
+            Vector3 toCamera = cam.transform.position - transform.position;
             if (toCamera.sqrMagnitude > 0.0001f)
             {
                 transform.rotation = Quaternion.LookRotation(toCamera.normalized, Vector3.up);
@@ -62,5 +73,25 @@ public class BombWorldTimerText : MonoBehaviour
         timerText.text = string.IsNullOrEmpty(prefix)
             ? remaining.ToString("0.0")
             : prefix + remaining.ToString("0.0");
+    }
+
+    private Vector3 GetAnchorPosition()
+    {
+        if (ownerRenderer == null && ownerBomb != null)
+        {
+            ownerRenderer = ownerBomb.GetComponentInChildren<Renderer>();
+        }
+
+        if (ownerRenderer != null)
+        {
+            return ownerRenderer.bounds.center;
+        }
+
+        if (ownerBomb != null)
+        {
+            return ownerBomb.transform.position;
+        }
+
+        return transform.position;
     }
 }

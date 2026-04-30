@@ -199,7 +199,7 @@ public class MvpMenuController : MonoBehaviour
 
         if (deathSummaryText != null && runStats != null)
         {
-            deathSummaryText.text = "HP: " + runStats.hp + "/" + runStats.maxHp + "   Coins Earned:" + runStats.totalCoinsEarned;
+            deathSummaryText.text = "HP: " + runStats.hp + "/" + runStats.maxHp + "   Coins Earned: " + runStats.totalCoinsEarned;
         }
 
         if (showMain)
