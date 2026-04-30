@@ -4,6 +4,10 @@ using UnityEngine.UI;
 
 public class PlayerHudDisplay : MonoBehaviour
 {
+    [Header("Binding")]
+    public RunStats runStats;
+    public bool bindToRunStats = true;
+
     [Header("Values")]
     public int currentAmmo = 12;
     public int maxAmmo = 12;
@@ -35,6 +39,7 @@ public class PlayerHudDisplay : MonoBehaviour
 
     private void Update()
     {
+        SyncFromRunStats();
         Refresh();
     }
 
@@ -55,6 +60,22 @@ public class PlayerHudDisplay : MonoBehaviour
         currentShield = shield;
         maxShield = shieldCapacity;
         Refresh();
+    }
+
+    private void SyncFromRunStats()
+    {
+        if (!bindToRunStats || runStats == null)
+        {
+            return;
+        }
+
+        currentAmmo = runStats.ammo;
+        maxAmmo = Mathf.Max(maxAmmo, currentAmmo);
+        money = runStats.coins;
+        currentHp = runStats.hp;
+        maxHp = Mathf.Max(1, runStats.maxHp);
+        currentShield = runStats.shieldCharges;
+        maxShield = Mathf.Max(1, maxShield, currentShield);
     }
 
     private void Refresh()

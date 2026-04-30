@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     public float tableReleaseDownwardSpeed = 0.4f;
 
     [Header("Phase")]
+    public bool startAtMainMenu = true;
     [SerializeField] private GamePhase currentPhase = GamePhase.AimShoot;
 
     [Header("Runtime")]
@@ -43,6 +44,14 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        if (startAtMainMenu)
+        {
+            runStats?.ResetRun();
+            SetPhase(GamePhase.MainMenu);
+            return;
+        }
+
+        runStats?.ResetRun();
         SetPhase(GamePhase.AimShoot);
     }
 
@@ -253,6 +262,12 @@ public class GameManager : MonoBehaviour
             ClearLandedItems();
         }
 
+        if (runStats != null && runStats.IsDead)
+        {
+            SetPhase(GamePhase.Death);
+            return;
+        }
+
         if (runStats == null || runStats.ammo <= 0)
         {
             SetPhase(GamePhase.RoundOver);
@@ -300,5 +315,34 @@ public class GameManager : MonoBehaviour
     public void RemoveLandedItem(LootItem item)
     {
         landedItems.Remove(item);
+    }
+
+    public void StartRun()
+    {
+        runStats?.ResetRun();
+        ClearLandedItems();
+
+        if (activeProjectile != null)
+        {
+            Destroy(activeProjectile.gameObject);
+            activeProjectile = null;
+        }
+
+        reelTimer = 0f;
+        isResolvingDockLanding = false;
+        SetPhase(GamePhase.AimShoot);
+    }
+
+    public void ReturnToMainMenu()
+    {
+        ClearLandedItems();
+
+        if (activeProjectile != null)
+        {
+            Destroy(activeProjectile.gameObject);
+            activeProjectile = null;
+        }
+
+        SetPhase(GamePhase.MainMenu);
     }
 }

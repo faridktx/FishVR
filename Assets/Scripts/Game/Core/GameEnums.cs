@@ -1,11 +1,13 @@
 public enum GamePhase
 {
+    MainMenu,
     AimShoot,
     AutoReel,
     Defuse,
     Sort,
     Shop,
-    RoundOver
+    RoundOver,
+    Death
 }
 
 public enum LootKind

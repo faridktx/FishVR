@@ -11,7 +11,18 @@ public class ShopCardPressZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.name.Contains("Poke Interactor")) return;
+        TryPress(other);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        TryPress(other);
+    }
+
+    private void TryPress(Collider other)
+    {
+        if (!VrProximityButton.IsInteractorCollider(other)) return;
+        if (cardVisual == null) return;
         if (hasPressed) return;
         if (Time.time < nextPressTime) return;
 
@@ -23,7 +34,7 @@ public class ShopCardPressZone : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.name.Contains("Poke Interactor")) return;
+        if (!VrProximityButton.IsInteractorCollider(other)) return;
 
         hasPressed = false;
     }

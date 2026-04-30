@@ -12,6 +12,7 @@ public class HudShopPanel : MonoBehaviour
 {
     [Header("Economy References")]
     public RunStats runStats;
+    public GameManager gameManager;
 
     [Header("Prices & Amounts")]
     public int ammoCost = 5;
@@ -31,6 +32,7 @@ public class HudShopPanel : MonoBehaviour
     public Button shieldBuyButton;
 
     [Header("Toggle")]
+    public bool enableKeyboardFallback;
     public Key toggleKey = Key.Tab;
 
     private bool isOpen;
@@ -49,6 +51,11 @@ public class HudShopPanel : MonoBehaviour
 
     private void Start()
     {
+        if (gameManager == null)
+        {
+            gameManager = FindFirstObjectByType<GameManager>();
+        }
+
         SyncHud();
         
         // Wire up physical VR shop cards if they exist
@@ -75,8 +82,18 @@ public class HudShopPanel : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current == null)
+        if (!enableKeyboardFallback || Keyboard.current == null)
         {
+            if (feedbackTimer > 0f)
+            {
+                feedbackTimer -= Time.deltaTime;
+                if (feedbackTimer <= 0f && feedbackLabel != null)
+                {
+                    feedbackLabel.text = "";
+                }
+            }
+
+            SyncHud();
             return;
         }
 
@@ -85,17 +102,18 @@ public class HudShopPanel : MonoBehaviour
             SetOpen(!isOpen);
         }
 
+        if (isOpen && Keyboard.current[Key.Digit1].wasPressedThisFrame)
+        {
+            BuyAmmo();
+        }
+
+        if (isOpen && Keyboard.current[Key.Digit2].wasPressedThisFrame)
+        {
+            BuyShield();
+        }
+
         if (isOpen)
         {
-            if (Keyboard.current[Key.Digit1].wasPressedThisFrame)
-            {
-                BuyAmmo();
-            }
-            if (Keyboard.current[Key.Digit2].wasPressedThisFrame)
-            {
-                BuyShield();
-            }
-
             RefreshLabels();
         }
 
@@ -127,6 +145,7 @@ public class HudShopPanel : MonoBehaviour
 
         runStats.SpendCoins(ammoCost);
         runStats.AddAmmo(ammoAmount);
+        ResumeRoundIfOutOfAmmoStateRecovered();
         ShowFeedback("Bought +" + ammoAmount + " Ammo!");
         SyncHud();
     }
@@ -146,7 +165,7 @@ public class HudShopPanel : MonoBehaviour
         }
 
         runStats.SpendCoins(shieldCost);
-        runStats.shieldCharges += Mathf.Max(1, shieldAmount);
+        runStats.AddShield(Mathf.Max(1, shieldAmount));
         ShowFeedback("Bought +" + shieldAmount + " Shield!");
         SyncHud();
     }
@@ -159,8 +178,12 @@ public class HudShopPanel : MonoBehaviour
         }
 
         hudDisplay.currentAmmo = runStats.ammo;
+        hudDisplay.maxAmmo = Mathf.Max(hudDisplay.maxAmmo, runStats.ammo);
         hudDisplay.money = runStats.coins;
+        hudDisplay.currentHp = runStats.hp;
+        hudDisplay.maxHp = runStats.maxHp;
         hudDisplay.currentShield = runStats.shieldCharges;
+        hudDisplay.maxShield = Mathf.Max(1, hudDisplay.maxShield, runStats.shieldCharges);
     }
 
     private void ShowFeedback(string msg)
@@ -171,6 +194,19 @@ public class HudShopPanel : MonoBehaviour
         }
 
         feedbackTimer = FeedbackDuration;
+    }
+
+    private void ResumeRoundIfOutOfAmmoStateRecovered()
+    {
+        if (gameManager == null || runStats == null)
+        {
+            return;
+        }
+
+        if (runStats.ammo > 0 && gameManager.CurrentPhase == GamePhase.RoundOver)
+        {
+            gameManager.SetPhase(GamePhase.AimShoot);
+        }
     }
 
     private void RefreshLabels()

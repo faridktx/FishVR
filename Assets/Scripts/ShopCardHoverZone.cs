@@ -6,13 +6,17 @@ public class ShopCardHoverZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.name.Contains("Poke Interactor")) return;
+        if (!VrProximityButton.IsInteractorCollider(other)) return;
+        if (cardVisual == null) return;
+
         cardVisual.SetHover();
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.name.Contains("Poke Interactor")) return;
+        if (!VrProximityButton.IsInteractorCollider(other)) return;
+        if (cardVisual == null) return;
+
         cardVisual.SetNormal();
     }
 }

@@ -115,6 +115,44 @@ public class LootItem : MonoBehaviour
         tableDropRoutine = StartCoroutine(TableDropRoutine(worldPosition, holdDuration, releaseDownwardSpeed));
     }
 
+    public void PrepareForVrGrab()
+    {
+        if (tableDropRoutine != null)
+        {
+            StopCoroutine(tableDropRoutine);
+            tableDropRoutine = null;
+        }
+
+        if (isAttachedToNet)
+        {
+            DetachFromNet();
+        }
+
+        isDocked = false;
+
+        if (itemCollider != null)
+        {
+            itemCollider.enabled = true;
+        }
+
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = false;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
+    public void HandleVrRelease()
+    {
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+        }
+    }
+
     private IEnumerator TableDropRoutine(Vector3 worldPosition, float holdDuration, float releaseDownwardSpeed)
     {
         transform.position = worldPosition;

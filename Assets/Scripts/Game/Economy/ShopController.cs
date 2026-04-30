@@ -9,6 +9,7 @@ public class ShopController : MonoBehaviour
 
     [Header("UI")]
     public GameObject shopPanel;
+    public bool enableKeyboardFallback;
     public KeyCode toggleKey = KeyCode.Tab;
 
     private bool isOpen;
@@ -20,7 +21,7 @@ public class ShopController : MonoBehaviour
 
     private void Update()
     {
-        if (IsKeyPressed(toggleKey))
+        if (enableKeyboardFallback && IsKeyPressed(toggleKey))
         {
             SetOpen(!isOpen);
         }
