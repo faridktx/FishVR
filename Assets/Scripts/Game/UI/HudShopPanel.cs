@@ -61,7 +61,7 @@ public class HudShopPanel : MonoBehaviour
         }
 
         SyncHud();
-        
+
         // Wire up physical VR shop cards if they exist
         GameObject ammoCard = GameObject.Find("Card_Ammo");
         if (ammoCard != null)
@@ -72,7 +72,7 @@ public class HudShopPanel : MonoBehaviour
                 visual.onCardPressed.AddListener(BuyAmmo);
             }
         }
-        
+
         GameObject shieldCard = GameObject.Find("Card_Shield");
         if (shieldCard != null)
         {
