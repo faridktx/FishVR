@@ -39,6 +39,16 @@ ProjectSettings/
 
 ## Assets Used
 
+Alarm1.wav by Rotaredom -- https://freesound.org/s/686859/ -- License: Creative Commons 0
+
+ELECTRO-BOMB by magnuswaker -- https://freesound.org/s/697826/ -- License: Creative Commons 0
+
+Vintage Camera Flash Powder and Shutter by Werra -- https://freesound.org/s/232130/ -- License: Creative Commons 0
+
+Click.wav by kwahmah_02 -- https://freesound.org/s/256116/ -- License: Creative Commons 0
+
+Stream, Running Water | Aviemore Scotland by BurghRecords -- https://freesound.org/s/415151/ -- License: Creative Commons 0
+
 ### Harpoon Gun
 
 - **Title:** Fishing Net
