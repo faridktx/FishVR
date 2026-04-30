@@ -389,12 +389,30 @@ public class MvpMenuController : MonoBehaviour
 
     private static void EnsureEventSystem()
     {
-        if (FindFirstObjectByType<EventSystem>() != null)
+        EventSystem eventSystem = FindFirstObjectByType<EventSystem>();
+        if (eventSystem == null)
         {
-            return;
+            GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            eventSystem = eventSystemObject.GetComponent<EventSystem>();
+            DontDestroyOnLoad(eventSystemObject);
         }
 
-        GameObject eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
-        DontDestroyOnLoad(eventSystem);
+        if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+        {
+            eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+        }
+
+        XRUIInputModule xrInputModule = eventSystem.GetComponent<XRUIInputModule>();
+        if (xrInputModule == null)
+        {
+            xrInputModule = eventSystem.gameObject.AddComponent<XRUIInputModule>();
+        }
+
+        xrInputModule.enableXRInput = true;
+        xrInputModule.enableMouseInput = false;
+        xrInputModule.enableTouchInput = false;
+        xrInputModule.enableGamepadInput = false;
+        xrInputModule.enableJoystickInput = false;
+        xrInputModule.enableBuiltinActionsAsFallback = false;
     }
 }
