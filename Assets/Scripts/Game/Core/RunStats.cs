@@ -43,7 +43,7 @@ public class RunStats : MonoBehaviour
     {
         if (ammo + amount > 10)
         {
-            amount = 10;
+            ammo = 10;
         }
         else{
             ammo = Mathf.Max(0, ammo + amount);
@@ -60,7 +60,7 @@ public class RunStats : MonoBehaviour
     {
         if (shieldCharges + amount > 10)
         {
-            amount = 10;
+            shieldCharges = 10;
         }
         else{
         shieldCharges = Mathf.Max(0, shieldCharges + amount);
