@@ -12,6 +12,7 @@ public class HudShopPanel : MonoBehaviour
 {
     [Header("Economy References")]
     public RunStats runStats;
+    public GameManager gameManager;
 
     [Header("Prices & Amounts")]
     public int ammoCost = 5;
@@ -50,6 +51,11 @@ public class HudShopPanel : MonoBehaviour
 
     private void Start()
     {
+        if (gameManager == null)
+        {
+            gameManager = FindFirstObjectByType<GameManager>();
+        }
+
         SyncHud();
         
         // Wire up physical VR shop cards if they exist
@@ -139,6 +145,7 @@ public class HudShopPanel : MonoBehaviour
 
         runStats.SpendCoins(ammoCost);
         runStats.AddAmmo(ammoAmount);
+        ResumeRoundIfOutOfAmmoStateRecovered();
         ShowFeedback("Bought +" + ammoAmount + " Ammo!");
         SyncHud();
     }
@@ -187,6 +194,19 @@ public class HudShopPanel : MonoBehaviour
         }
 
         feedbackTimer = FeedbackDuration;
+    }
+
+    private void ResumeRoundIfOutOfAmmoStateRecovered()
+    {
+        if (gameManager == null || runStats == null)
+        {
+            return;
+        }
+
+        if (runStats.ammo > 0 && gameManager.CurrentPhase == GamePhase.RoundOver)
+        {
+            gameManager.SetPhase(GamePhase.AimShoot);
+        }
     }
 
     private void RefreshLabels()

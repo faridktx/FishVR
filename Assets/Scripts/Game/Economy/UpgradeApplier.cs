@@ -13,6 +13,7 @@ public class UpgradeApplier : MonoBehaviour
         }
 
         runStats.AddAmmo(catalog.ammoAmount);
+        ResumeRoundIfOutOfAmmoStateRecovered();
     }
 
     public void BuyMagnet(UpgradeCatalog catalog)
@@ -54,5 +55,18 @@ public class UpgradeApplier : MonoBehaviour
     private bool CanUse(UpgradeCatalog catalog)
     {
         return catalog != null && runStats != null;
+    }
+
+    private void ResumeRoundIfOutOfAmmoStateRecovered()
+    {
+        if (shooter == null || shooter.gameManager == null || runStats == null)
+        {
+            return;
+        }
+
+        if (runStats.ammo > 0 && shooter.gameManager.CurrentPhase == GamePhase.RoundOver)
+        {
+            shooter.gameManager.SetPhase(GamePhase.AimShoot);
+        }
     }
 }
