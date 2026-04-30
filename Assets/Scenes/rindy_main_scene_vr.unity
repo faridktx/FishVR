@@ -451,7 +451,7 @@ MonoBehaviour:
   followDamping: 8
   rotateStrength: 10
   maxFollowSpeed: 8
-  dockHoverAmplitude: 0.06
+  dockHoverAmplitude: 0.03
   dockHoverFrequency: 1.2
   dockHoverTurnSpeed: 18
 --- !u!65 &6368284
@@ -7950,7 +7950,7 @@ MonoBehaviour:
   followDamping: 8
   rotateStrength: 10
   maxFollowSpeed: 8
-  dockHoverAmplitude: 0.06
+  dockHoverAmplitude: 0.03
   dockHoverFrequency: 1.2
   dockHoverTurnSpeed: 18
 --- !u!114 &623864774
@@ -9569,7 +9569,7 @@ MonoBehaviour:
   followDamping: 8
   rotateStrength: 10
   maxFollowSpeed: 8
-  dockHoverAmplitude: 0.06
+  dockHoverAmplitude: 0.03
   dockHoverFrequency: 1.2
   dockHoverTurnSpeed: 18
 --- !u!114 &698665205
@@ -9848,7 +9848,7 @@ MonoBehaviour:
   followDamping: 8
   rotateStrength: 10
   maxFollowSpeed: 8
-  dockHoverAmplitude: 0.06
+  dockHoverAmplitude: 0.03
   dockHoverFrequency: 1.2
   dockHoverTurnSpeed: 18
 --- !u!114 &709086513
@@ -17856,7 +17856,7 @@ MonoBehaviour:
   followDamping: 8
   rotateStrength: 10
   maxFollowSpeed: 8
-  dockHoverAmplitude: 0.06
+  dockHoverAmplitude: 0.04
   dockHoverFrequency: 1.2
   dockHoverTurnSpeed: 18
 --- !u!114 &1328371936
@@ -19004,7 +19004,7 @@ MonoBehaviour:
   followDamping: 8
   rotateStrength: 10
   maxFollowSpeed: 8
-  dockHoverAmplitude: 0.06
+  dockHoverAmplitude: 0.03
   dockHoverFrequency: 1.2
   dockHoverTurnSpeed: 18
 --- !u!114 &1448315689
@@ -28215,7 +28215,7 @@ MonoBehaviour:
   ammoAmount: 3
   shieldCost: 10
   shieldAmount: 1
-  hudDisplay: {fileID: 2139983505}
+  hudDisplay: {fileID: 0}
   uiAudioSource: {fileID: 2139983509}
   shopBuyClip: {fileID: 8300000, guid: c9efd022485553c46a746db8d05f73d9, type: 3}
   panelRoot: {fileID: 0}

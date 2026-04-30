@@ -50,6 +50,8 @@ public class HudShopPanel : MonoBehaviour
             BuildUI();
         }
 
+        // Force-hide regardless of isOpen default value
+        isOpen = true;
         SetOpen(false);
     }
 
