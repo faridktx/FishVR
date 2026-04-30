@@ -36,12 +36,7 @@ public class ReturnToWaistOnRelease : MonoBehaviour
 
         if (headsetTarget == null && Camera.main != null)
         {
-            Transform cameraTransform = Camera.main.transform;
-            headsetTarget = cameraTransform.parent != null ? cameraTransform.parent : cameraTransform;
-        }
-        else if (headsetTarget != null && headsetTarget.GetComponent<Camera>() != null)
-        {
-            headsetTarget = headsetTarget.parent != null ? headsetTarget.parent : headsetTarget;
+            headsetTarget = Camera.main.transform;
         }
 
         if (body != null)
