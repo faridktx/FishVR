@@ -48,7 +48,7 @@ public class UpgradeApplier : MonoBehaviour
             return;
         }
 
-        runStats.shieldCharges += Mathf.Max(1, catalog.shieldAmount);
+        runStats.AddShield(Mathf.Max(1, catalog.shieldAmount));
     }
 
     private bool CanUse(UpgradeCatalog catalog)

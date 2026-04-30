@@ -27,6 +27,7 @@ public class DebugHUD : MonoBehaviour
             "Phase: " + gameManager.CurrentPhase + "\n" +
             "Ammo: " + runStats.ammo + "\n" +
             "Coins: " + runStats.coins + "\n" +
+            "HP: " + runStats.hp + "/" + runStats.maxHp + "\n" +
             "Shield: " + runStats.shieldCharges + "\n" +
             "Haul Weight: " + runStats.currentHaulWeight.ToString("0.00") + "\n" +
             "Reel Speed: " + reelSpeed.ToString("0.00") + "\n" +

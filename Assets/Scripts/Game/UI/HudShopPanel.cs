@@ -146,7 +146,7 @@ public class HudShopPanel : MonoBehaviour
         }
 
         runStats.SpendCoins(shieldCost);
-        runStats.shieldCharges += Mathf.Max(1, shieldAmount);
+        runStats.AddShield(Mathf.Max(1, shieldAmount));
         ShowFeedback("Bought +" + shieldAmount + " Shield!");
         SyncHud();
     }
@@ -159,8 +159,12 @@ public class HudShopPanel : MonoBehaviour
         }
 
         hudDisplay.currentAmmo = runStats.ammo;
+        hudDisplay.maxAmmo = Mathf.Max(hudDisplay.maxAmmo, runStats.ammo);
         hudDisplay.money = runStats.coins;
+        hudDisplay.currentHp = runStats.hp;
+        hudDisplay.maxHp = runStats.maxHp;
         hudDisplay.currentShield = runStats.shieldCharges;
+        hudDisplay.maxShield = Mathf.Max(1, hudDisplay.maxShield, runStats.shieldCharges);
     }
 
     private void ShowFeedback(string msg)

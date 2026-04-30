@@ -6,6 +6,7 @@ public class BombDefuseController : MonoBehaviour
     public RunStats runStats;
 
     public float defuseWindowSeconds = 3f;
+    public int bombDamage = 50;
 
     [Header("Bomb Pulse")]
     public bool pulseBombWhileActive = true;
@@ -110,9 +111,8 @@ public class BombDefuseController : MonoBehaviour
         timerActive = false;
         RemainingTime = 0f;
 
-        if (runStats != null && runStats.shieldCharges > 0)
+        if (runStats != null && runStats.TryConsumeShield())
         {
-            runStats.shieldCharges -= 1;
             if (activeBomb != null)
             {
                 gameManager.RemoveLandedItem(activeBomb);
@@ -122,6 +122,11 @@ public class BombDefuseController : MonoBehaviour
             activeBomb = null;
             gameManager.OnDefuseResolved(true);
             return;
+        }
+
+        if (runStats != null)
+        {
+            runStats.TakeDamage(bombDamage);
         }
 
         activeBomb = null;
