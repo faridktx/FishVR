@@ -16,6 +16,7 @@ public class BombDefuseController : MonoBehaviour
     [Header("Audio")]
     public AudioSource bombAudioSource;
     public AudioClip warningBeepClip;
+    public AudioClip explosionClip;
     public float warningBeepInterval = 0.8f;
     public float finalWarningBeepInterval = 0.3f;
     public float finalWarningThreshold = 1f;
@@ -121,6 +122,8 @@ public class BombDefuseController : MonoBehaviour
         timerActive = false;
         RemainingTime = 0f;
 
+        PlayBombOneShot(explosionClip);
+
         if (runStats != null && runStats.TryConsumeShield())
         {
             if (activeBomb != null)
@@ -201,14 +204,22 @@ public class BombDefuseController : MonoBehaviour
             return;
         }
 
-        AudioSource source = bombAudioSource != null ? bombAudioSource : GetComponent<AudioSource>();
-        if (source == null)
+        PlayBombOneShot(warningBeepClip);
+        nextWarningBeepTime = Time.time + Mathf.Max(0.05f, interval);
+    }
+
+    private void PlayBombOneShot(AudioClip clip)
+    {
+        if (clip == null)
         {
             return;
         }
 
-        source.PlayOneShot(warningBeepClip);
-        nextWarningBeepTime = Time.time + Mathf.Max(0.05f, interval);
+        AudioSource source = bombAudioSource != null ? bombAudioSource : GetComponent<AudioSource>();
+        if (source != null)
+        {
+            source.PlayOneShot(clip);
+        }
     }
 
 }

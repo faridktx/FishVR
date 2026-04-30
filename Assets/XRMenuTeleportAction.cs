@@ -9,6 +9,10 @@ public class XRMenuTeleportAction : MonoBehaviour
         Head
     }
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource uiAudioSource;
+    [SerializeField] private AudioClip teleportClickClip;
+
     [Header("Player References")]
     [SerializeField] private Transform playerRoot;
     [SerializeField] private Transform headTransform;
@@ -29,6 +33,8 @@ public class XRMenuTeleportAction : MonoBehaviour
 
     public void TeleportPlayer()
     {
+        PlayTeleportAudio();
+
         if (playerRoot == null || headTransform == null || destination == null)
         {
             Debug.LogWarning("XRMenuTeleportAction is missing required references.", this);
@@ -71,5 +77,19 @@ public class XRMenuTeleportAction : MonoBehaviour
 
         if (characterController != null)
             characterController.enabled = true;
+    }
+
+    private void PlayTeleportAudio()
+    {
+        if (teleportClickClip == null)
+        {
+            return;
+        }
+
+        AudioSource source = uiAudioSource != null ? uiAudioSource : GetComponent<AudioSource>();
+        if (source != null)
+        {
+            source.PlayOneShot(teleportClickClip);
+        }
     }
 }

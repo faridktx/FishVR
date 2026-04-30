@@ -7,6 +7,11 @@ public class TeleMenuToggle : MonoBehaviour
     public GameObject menuCanvas;
     public Collider[] hitboxColliders;
 
+    [Header("Audio")]
+    public AudioSource uiAudioSource;
+    public AudioClip menuEnableClip;
+    public AudioClip menuDisableClip;
+
     private void Start()
     {
         if (menuCanvas != null)
@@ -37,6 +42,22 @@ public class TeleMenuToggle : MonoBehaviour
             menuCanvas.SetActive(newState);
             foreach (Collider col in hitboxColliders)
                 if (col != null) col.enabled = newState;
+
+            PlayUiOneShot(newState ? menuEnableClip : menuDisableClip);
+        }
+    }
+
+    private void PlayUiOneShot(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        AudioSource source = uiAudioSource != null ? uiAudioSource : GetComponent<AudioSource>();
+        if (source != null)
+        {
+            source.PlayOneShot(clip);
         }
     }
 }
