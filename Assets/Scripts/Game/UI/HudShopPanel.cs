@@ -31,6 +31,7 @@ public class HudShopPanel : MonoBehaviour
     public Button shieldBuyButton;
 
     [Header("Toggle")]
+    public bool enableKeyboardFallback;
     public Key toggleKey = Key.Tab;
 
     private bool isOpen;
@@ -75,8 +76,18 @@ public class HudShopPanel : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current == null)
+        if (!enableKeyboardFallback || Keyboard.current == null)
         {
+            if (feedbackTimer > 0f)
+            {
+                feedbackTimer -= Time.deltaTime;
+                if (feedbackTimer <= 0f && feedbackLabel != null)
+                {
+                    feedbackLabel.text = "";
+                }
+            }
+
+            SyncHud();
             return;
         }
 
@@ -85,17 +96,18 @@ public class HudShopPanel : MonoBehaviour
             SetOpen(!isOpen);
         }
 
+        if (isOpen && Keyboard.current[Key.Digit1].wasPressedThisFrame)
+        {
+            BuyAmmo();
+        }
+
+        if (isOpen && Keyboard.current[Key.Digit2].wasPressedThisFrame)
+        {
+            BuyShield();
+        }
+
         if (isOpen)
         {
-            if (Keyboard.current[Key.Digit1].wasPressedThisFrame)
-            {
-                BuyAmmo();
-            }
-            if (Keyboard.current[Key.Digit2].wasPressedThisFrame)
-            {
-                BuyShield();
-            }
-
             RefreshLabels();
         }
 

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 using UnityEngine.UI;
 
 public class MvpMenuController : MonoBehaviour
@@ -15,7 +16,18 @@ public class MvpMenuController : MonoBehaviour
     public GameObject deathMenuRoot;
     public PlayerHudDisplay hudDisplay;
 
-    [Header("Keys")]
+    [Header("VR Placement")]
+    public Transform headset;
+    public float menuDistance = 1.8f;
+    public float menuHeightOffset = -0.05f;
+    public Vector2 menuSize = new Vector2(900f, 520f);
+    public float menuWorldScale = 0.002f;
+    public Vector3 hudLocalPosition = new Vector3(0f, -0.38f, 1.15f);
+    public Vector2 hudSize = new Vector2(520f, 170f);
+    public float hudWorldScale = 0.0016f;
+
+    [Header("Debug Keyboard Fallback")]
+    public bool enableKeyboardFallback;
     public Key startKey = Key.Enter;
     public Key retryKey = Key.R;
     public Key menuKey = Key.M;
@@ -62,6 +74,7 @@ public class MvpMenuController : MonoBehaviour
             hudDisplay.bindToRunStats = true;
         }
 
+        ConfigureVrCanvases();
         SubscribeToPhaseChanges();
         lastPhase = gameManager != null ? gameManager.CurrentPhase : GamePhase.MainMenu;
         RefreshVisibility();
@@ -84,6 +97,8 @@ public class MvpMenuController : MonoBehaviour
             RefreshVisibility();
         }
 
+        ConfigureVrCanvases();
+
         if (gameManager == null)
         {
             return;
@@ -95,7 +110,7 @@ public class MvpMenuController : MonoBehaviour
             RefreshVisibility();
         }
 
-        if (Keyboard.current == null)
+        if (!enableKeyboardFallback || Keyboard.current == null)
         {
             return;
         }
@@ -175,6 +190,11 @@ public class MvpMenuController : MonoBehaviour
         {
             deathSummaryText.text = "HP " + runStats.hp + "/" + runStats.maxHp + "   Coins " + runStats.coins;
         }
+
+        if (showMain || showDeath)
+        {
+            PlaceMenuInFrontOfHeadset();
+        }
     }
 
     private void BuildMenuUi()
@@ -183,19 +203,31 @@ public class MvpMenuController : MonoBehaviour
         if (canvas == null)
         {
             canvas = gameObject.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         }
 
-        if (GetComponent<CanvasScaler>() == null)
+        canvas.renderMode = RenderMode.WorldSpace;
+
+        RectTransform rootRect = GetComponent<RectTransform>();
+        if (rootRect == null)
         {
-            CanvasScaler scaler = gameObject.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1280f, 720f);
+            rootRect = gameObject.AddComponent<RectTransform>();
         }
 
-        if (GetComponent<GraphicRaycaster>() == null)
+        rootRect.sizeDelta = menuSize;
+        transform.localScale = Vector3.one * menuWorldScale;
+
+        CanvasScaler scaler = GetComponent<CanvasScaler>();
+        if (scaler == null)
         {
-            gameObject.AddComponent<GraphicRaycaster>();
+            scaler = gameObject.AddComponent<CanvasScaler>();
+        }
+
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+        scaler.dynamicPixelsPerUnit = 24f;
+
+        if (GetComponent<TrackedDeviceGraphicRaycaster>() == null)
+        {
+            gameObject.AddComponent<TrackedDeviceGraphicRaycaster>();
         }
 
         mainMenuRoot = CreatePanel("MainMenu", "FISHVR", "Catch junk, avoid the microwave bombs, sell trash, buy ammo and shields.", "START", StartRun);
@@ -204,6 +236,91 @@ public class MvpMenuController : MonoBehaviour
 
         Button menuButton = CreateButton(deathMenuRoot.transform, "MainMenuButton", "MAIN MENU", new Vector2(0f, -135f), ReturnToMainMenu);
         menuButton.GetComponent<RectTransform>().sizeDelta = new Vector2(260f, 56f);
+        PlaceMenuInFrontOfHeadset();
+    }
+
+    private void ConfigureVrCanvases()
+    {
+        if (headset == null)
+        {
+            Camera mainCamera = Camera.main;
+            if (mainCamera != null)
+            {
+                headset = mainCamera.transform;
+            }
+        }
+
+        ConfigureMenuCanvas();
+        ConfigureHudCanvas();
+    }
+
+    private void ConfigureMenuCanvas()
+    {
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas == null)
+        {
+            return;
+        }
+
+        canvas.renderMode = RenderMode.WorldSpace;
+        RectTransform rect = GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            rect.sizeDelta = menuSize;
+        }
+
+        transform.localScale = Vector3.one * menuWorldScale;
+
+        if (GetComponent<TrackedDeviceGraphicRaycaster>() == null)
+        {
+            gameObject.AddComponent<TrackedDeviceGraphicRaycaster>();
+        }
+    }
+
+    private void ConfigureHudCanvas()
+    {
+        if (hudDisplay == null || headset == null)
+        {
+            return;
+        }
+
+        Canvas canvas = hudDisplay.GetComponent<Canvas>();
+        if (canvas == null)
+        {
+            return;
+        }
+
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.worldCamera = Camera.main;
+
+        RectTransform rect = hudDisplay.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            rect.sizeDelta = hudSize;
+        }
+
+        hudDisplay.transform.SetParent(headset, false);
+        hudDisplay.transform.localPosition = hudLocalPosition;
+        hudDisplay.transform.localRotation = Quaternion.identity;
+        hudDisplay.transform.localScale = Vector3.one * hudWorldScale;
+    }
+
+    private void PlaceMenuInFrontOfHeadset()
+    {
+        if (headset == null)
+        {
+            return;
+        }
+
+        Vector3 forward = Vector3.ProjectOnPlane(headset.forward, Vector3.up);
+        if (forward.sqrMagnitude < 0.001f)
+        {
+            forward = headset.forward;
+        }
+
+        forward.Normalize();
+        transform.position = headset.position + forward * Mathf.Max(0.5f, menuDistance) + Vector3.up * menuHeightOffset;
+        transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
 
     private GameObject CreatePanel(string name, string title, string subtitle, string buttonText, UnityEngine.Events.UnityAction action)
