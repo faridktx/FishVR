@@ -382,6 +382,7 @@ public class MvpMenuController : MonoBehaviour
         Button button = go.GetComponent<Button>();
         button.targetGraphic = image;
         button.onClick.AddListener(action);
+        go.AddComponent<VrProximityButton>();
 
         CreateLabel(go.transform, "Label", label, 24f, Vector2.zero, rect.sizeDelta, Color.white);
         return button;
