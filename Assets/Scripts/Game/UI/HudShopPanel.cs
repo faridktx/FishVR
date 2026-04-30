@@ -23,6 +23,10 @@ public class HudShopPanel : MonoBehaviour
     [Header("HUD Binding")]
     public PlayerHudDisplay hudDisplay;
 
+    [Header("Audio")]
+    public AudioSource uiAudioSource;
+    public AudioClip shopBuyClip;
+
     [Header("UI References (auto-built if null)")]
     public GameObject panelRoot;
     public TMP_Text ammoBtnLabel;
@@ -146,6 +150,7 @@ public class HudShopPanel : MonoBehaviour
         runStats.SpendCoins(ammoCost);
         runStats.AddAmmo(ammoAmount);
         ResumeRoundIfOutOfAmmoStateRecovered();
+        PlayUiOneShot(shopBuyClip);
         ShowFeedback("Bought +" + ammoAmount + " Ammo!");
         SyncHud();
     }
@@ -166,6 +171,7 @@ public class HudShopPanel : MonoBehaviour
 
         runStats.SpendCoins(shieldCost);
         runStats.AddShield(Mathf.Max(1, shieldAmount));
+        PlayUiOneShot(shopBuyClip);
         ShowFeedback("Bought +" + shieldAmount + " Shield!");
         SyncHud();
     }
@@ -224,10 +230,30 @@ public class HudShopPanel : MonoBehaviour
 
     public void SetOpen(bool value)
     {
+        if (isOpen == value)
+        {
+            return;
+        }
+
         isOpen = value;
         if (panelRoot != null)
         {
             panelRoot.SetActive(isOpen);
+        }
+
+    }
+
+    private void PlayUiOneShot(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        AudioSource source = uiAudioSource != null ? uiAudioSource : GetComponent<AudioSource>();
+        if (source != null)
+        {
+            source.PlayOneShot(clip);
         }
     }
 

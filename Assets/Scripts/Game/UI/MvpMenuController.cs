@@ -16,6 +16,10 @@ public class MvpMenuController : MonoBehaviour
     public GameObject deathMenuRoot;
     public PlayerHudDisplay hudDisplay;
 
+    [Header("Audio")]
+    public AudioSource uiAudioSource;
+    public AudioClip menuClickClip;
+
     [Header("VR Placement")]
     public Transform headset;
     public float menuDistance = 1.8f;
@@ -144,14 +148,30 @@ public class MvpMenuController : MonoBehaviour
 
     public void StartRun()
     {
+        PlayUiOneShot(menuClickClip);
         gameManager?.StartRun();
         RefreshVisibility();
     }
 
     public void ReturnToMainMenu()
     {
+        PlayUiOneShot(menuClickClip);
         gameManager?.ReturnToMainMenu();
         RefreshVisibility();
+    }
+
+    private void PlayUiOneShot(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        AudioSource source = uiAudioSource != null ? uiAudioSource : GetComponent<AudioSource>();
+        if (source != null)
+        {
+            source.PlayOneShot(clip);
+        }
     }
 
     private void SubscribeToPhaseChanges()

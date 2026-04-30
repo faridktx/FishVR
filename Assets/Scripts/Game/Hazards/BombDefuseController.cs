@@ -13,6 +13,13 @@ public class BombDefuseController : MonoBehaviour
     public float pulseSpeed = 7f;
     public float pulseScaleAmount = 0.18f;
 
+    [Header("Audio")]
+    public AudioSource bombAudioSource;
+    public AudioClip warningBeepClip;
+    public float warningBeepInterval = 0.8f;
+    public float finalWarningBeepInterval = 0.3f;
+    public float finalWarningThreshold = 1f;
+
     public float RemainingTime { get; private set; }
     public LootItem ActiveBomb => activeBomb;
     public bool IsTimerActive => timerActive;
@@ -21,6 +28,7 @@ public class BombDefuseController : MonoBehaviour
     private bool timerActive;
     private Vector3 activeBombBaseScale;
     private bool hasBombBaseScale;
+    private float nextWarningBeepTime;
 
     private void Update()
     {
@@ -61,6 +69,7 @@ public class BombDefuseController : MonoBehaviour
         }
 
         ApplyPulse();
+        TickWarningBeep();
 
         RemainingTime -= Time.deltaTime;
 
@@ -82,6 +91,7 @@ public class BombDefuseController : MonoBehaviour
                 RemainingTime = defuseWindowSeconds;
                 activeBombBaseScale = activeBomb.transform.localScale;
                 hasBombBaseScale = true;
+                nextWarningBeepTime = 0f;
                 return;
             }
         }
@@ -173,6 +183,32 @@ public class BombDefuseController : MonoBehaviour
         }
 
         hasBombBaseScale = false;
+    }
+
+    private void TickWarningBeep()
+    {
+        if (warningBeepClip == null)
+        {
+            return;
+        }
+
+        float interval = RemainingTime <= finalWarningThreshold
+            ? finalWarningBeepInterval
+            : warningBeepInterval;
+
+        if (Time.time < nextWarningBeepTime)
+        {
+            return;
+        }
+
+        AudioSource source = bombAudioSource != null ? bombAudioSource : GetComponent<AudioSource>();
+        if (source == null)
+        {
+            return;
+        }
+
+        source.PlayOneShot(warningBeepClip);
+        nextWarningBeepTime = Time.time + Mathf.Max(0.05f, interval);
     }
 
 }

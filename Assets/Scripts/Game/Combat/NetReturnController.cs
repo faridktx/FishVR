@@ -7,6 +7,10 @@ public class NetReturnController : MonoBehaviour
     public float turningSpeed = 10f;
     public float slowdownPerWeight = 0.25f;
 
+    [Header("Audio")]
+    public AudioSource reelAudioSource;
+    public AudioClip reelLoopClip;
+
     public bool IsReturning { get; private set; }
 
     private Transform dockTarget;
@@ -21,11 +25,13 @@ public class NetReturnController : MonoBehaviour
     public void BeginReturn()
     {
         IsReturning = true;
+        StartReelLoop();
     }
 
     public void StopReturn()
     {
         IsReturning = false;
+        StopReelLoop();
     }
 
     public float GetCurrentReturnSpeed()
@@ -56,5 +62,48 @@ public class NetReturnController : MonoBehaviour
         );
 
         transform.position += forward * GetCurrentReturnSpeed() * Time.deltaTime;
+    }
+
+    private void OnDisable()
+    {
+        StopReelLoop();
+    }
+
+    private void StartReelLoop()
+    {
+        AudioSource source = reelAudioSource != null ? reelAudioSource : GetComponent<AudioSource>();
+        if (source == null || reelLoopClip == null)
+        {
+            return;
+        }
+
+        source.loop = true;
+        source.clip = reelLoopClip;
+
+        if (!source.isPlaying)
+        {
+            source.Play();
+        }
+    }
+
+    private void StopReelLoop()
+    {
+        AudioSource source = reelAudioSource != null ? reelAudioSource : GetComponent<AudioSource>();
+        if (source == null)
+        {
+            return;
+        }
+
+        if (source.isPlaying && source.clip == reelLoopClip)
+        {
+            source.Stop();
+        }
+
+        if (source.clip == reelLoopClip)
+        {
+            source.clip = null;
+        }
+
+        source.loop = false;
     }
 }

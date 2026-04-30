@@ -20,6 +20,10 @@ public class HarpoonShooter : MonoBehaviour
     public bool enableDesktopOverride = false;
     public bool desktopBlocksExternalTriggers = true;
 
+    [Header("Audio")]
+    public AudioSource combatAudioSource;
+    public AudioClip shotClip;
+
     private bool desktopShotRequested;
 
     private void Reset()
@@ -88,6 +92,21 @@ public class HarpoonShooter : MonoBehaviour
         projectile.Initialize(gameManager, shootDirection * shootForce);
         gameManager.OnShotFired(projectile);
         runStats.ConsumeAmmo(1);
+        PlayCombatOneShot(shotClip);
+    }
+
+    private void PlayCombatOneShot(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        AudioSource source = combatAudioSource != null ? combatAudioSource : GetComponent<AudioSource>();
+        if (source != null)
+        {
+            source.PlayOneShot(clip);
+        }
     }
 
     private Vector3 GetAimDirection()
